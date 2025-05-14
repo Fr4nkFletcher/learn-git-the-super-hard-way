@@ -1,5 +1,7 @@
 # learn-git-the-super-hard-way
 
+Translated from Mandarin [here](https://github.com/b1f6c1c4/learn-git-the-super-hard-way)
+
 [GitBook](https://app.gitbook.com/@b1f6c1c4/s/learn-git-the-super-hard-way/)
 
 ## Table of Contents
