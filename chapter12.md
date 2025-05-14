@@ -36,26 +36,26 @@ git push origin feature-branch
 
 Consider the following scenario: developing a **medium, small, or micro** microservice system, containing 10 components
 
-方案1：（多repo）创建10个git repo，每个repo一个master一个dev
+Scheme 1: (multi-repo) Create 10 git repos, each repo has a master and a dev branch
 
-方案2：（单repo单分支）创建1个git repo，设一个master一个dev
+Scheme 2: (single repo, single branch) Create 1 git repo, set up a master and a dev branch
 
-方案3：（单repo多分支）创建1个git repo，弃用master，每个组件单设自己的master和dev等等
+Scheme 3: (single repo, multiple branches) Create 1 git repo, abandon master, and set up a separate master and dev branch for each component, etc.
 
-| | 方案1 | 方案2 | 方案3 |
+| | Scheme 1 | Scheme 2 | Scheme 3 |
 | --- | --- | --- | --- |
-| 环境配置简易程度 | -------- | ++++++++ | --- |
-| 空间独立（同时修改不同组件是否可行） | ++++++++ | -------- | ++++++++ |
-| 时间对齐（组件版本是否能够统一） | -------- | ++++++++ | +++++ |
-| 组件之间可以互相参照 | -------- | ++++++ | ++++++++ |
-| 添加删除组件是否方便 | ++++++++ | -------- | +++++++ |
+| Ease of environment configuration | -------- | ++++++++ | --- |
+| Space independence (is it possible to modify different components at the same time) | ++++++++ | -------- | ++++++++ |
+| Time alignment (can component versions be unified) | -------- | ++++++++ | +++++ |
+| Components can reference each other | -------- | ++++++ | ++++++++ |
+| Is it convenient to add or remove components | ++++++++ | -------- | +++++++ |
 
-Therefore, the micro project scheme 2 is the best, and the small and medium project scheme 3 is the best.
+Therefore, for micro projects, scheme 2 is best; for small and medium projects, scheme 3 is best.
 Scheme 3 may have the following problems:
 
-- Time alignment cannot be achieved: it does not exist, refer to the following
-- Need to check out frequently: it does not exist, refer to the following
-- Single git library is too large: it does not exist, I have assumed it is a **small to medium** system
+- Time alignment cannot be achieved: does not exist, see below
+- Need to check out frequently: does not exist, see below
+- Single git repo is too large: does not exist, we assume it is a **small to medium** system
 
 # Single repo multi-branch workflow branch settings
 

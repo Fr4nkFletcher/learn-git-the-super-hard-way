@@ -74,11 +74,11 @@ ls
 ```
 
 # Packfile
-研究Git remotes之前需要先研究packfile。
-由于packfile内部格式相当复杂，本节不介绍Lv0命令。
-以下命令均为Lv2。
+Before studying Git remotes, we need to first study packfile.
+Since the internal format of packfile is quite complex, this section does not cover Lv0 commands.
+All commands below are Lv2.
 
-在开始之前，先创建几个对象：
+Before starting, create a few objects:
 ```bash
 echo 'obj1' | git hash-object -t blob --stdin -w
 # 5ff37e33c444f1ef1a6b3abda4fa05bf78352d12
@@ -97,7 +97,7 @@ git mktree <<EOF
 EOF
 # 187e91589a3f4f248f4cc8b1a1eca65b5161cc7b
 ```
-检查对象创建情况：
+Check object creation status:
 ```bash
 git ls-tree -r 187e
 # 100644 blob cff99442835504ec82ba2b6d6328d898033a5300	3.txt
@@ -111,7 +111,7 @@ find objects -type f
 # objects/18/7e91589a3f4f248f4cc8b1a1eca65b5161cc7b
 ```
 
-## 创建Packfile
+## Creating a Packfile
 
 ```bash
 mkdir -p ../somewhere-else/
@@ -126,11 +126,11 @@ ls ../somewhere-else/
 # prefix-2b2d8ce85275da98291c5ad8f60680b2dec81ba4.pack
 ```
 
-## 自动列出应该打包哪些对象
+## Automatic Object Listing
 
-前述方法手工指定了打包的文件；然而，由于没有打包blob 5ff3和tree 2da9，即便接收者拿到了对象也没有什么卵用（还原不出整个tree 187e，在`git checkout-index`时会失败）。
-此时需要祭出Git最复杂的Lv2命令之一：`git rev-list`
-（复杂程度与之不相上下的还有`git filter-branch`、`git merge-tree`）。
+The previous method manually specified the files to pack; however, since blobs 5ff3 and tree 2da9 were not packed, even if the receiver gets the objects, they would be useless (cannot restore the entire tree 187e, `git checkout-index` would fail).
+At this point, we need to use one of Git's most complex Lv2 commands: `git rev-list`
+(Other commands with similar complexity include `git filter-branch` and `git merge-tree`).
 
 ```bash
 git rev-list --objects 187e
@@ -143,7 +143,7 @@ git rev-list --objects 187e | git pack-objects ../somewhere-else/prefix
 # a451aab5615fb6d97e2ecb337b7f1d783ed66a70
 ```
 
-## 查看Packfile
+## Viewing Packfile
 
 ```bash
 git verify-pack -v ../somewhere-else/prefix-2b2d8ce85275da98291c5ad8f60680b2dec81ba4.idx
@@ -161,37 +161,37 @@ git verify-pack -v ../somewhere-else/prefix-a451aab5615fb6d97e2ecb337b7f1d783ed6
 # non delta: 5 objects
 # ../somewhere-else/prefix-a451aab5615fb6d97e2ecb337b7f1d783ed66a70.pack: ok
 ```
-对于复杂的packfile，可能出现链状结构（只保存了增量修改信息）。详情参见[这里](https://git-scm.com/book/en/v2/Git-Internals-Packfiles)。
+For complex packfiles, a chain structure may appear (only storing incremental modification information). For details, see [here](https://git-scm.com/book/en/v2/Git-Internals-Packfiles).
 
-## 解压缩Packfile
+## Unpacking Packfile
 
-（先删除所有objects：`rm -rf objects/*`)
+(First delete all objects: `rm -rf objects/*`)
 ```bash
 git unpack-objects < ../somewhere-else/prefix-a451aab5615fb6d97e2ecb337b7f1d783ed66a70.pack
 ```
 
-# 跨库直接对象传输
+# Direct Cross-Repository Object Transfer
 
-首先创建另一个repo：
+First create another repo:
 ```bash
 mkdir -p ../another-repo.git/objects ../another-repo.git/refs
 echo 'ref: refs/heads/master' > ../another-repo.git/HEAD
-# 允许直接传输对象
+# Allow direct object transfer
 git config uploadpack.allowAnySHA1InWant true
 git --git-dir=../another-repo.git config uploadpack.allowAnySHA1InWant true
 ```
 
-直接索要对象（若不加`--keep`则直接解Packfile）：
+Directly request objects (if `--keep` is not added, directly unpack the Packfile):
 ```bash
 git --git-dir=../another-repo.git fetch-pack --keep --no-progress "$(pwd)" 187e91589a3f4f248f4cc8b1a1eca65b5161cc7b
 # keep	a451aab5615fb6d97e2ecb337b7f1d783ed66a70
 # 187e91589a3f4f248f4cc8b1a1eca65b5161cc7b 187e91589a3f4f248f4cc8b1a1eca65b5161cc7b
 ```
-注意：`$(pwd)`还可以是URL，用于跨域对象传输
+Note: `$(pwd)` can also be a URL, used for cross-domain object transfer
 
-# 跨库直接引用传输
+# Direct Cross-Repository Reference Transfer
 
-创建引用：
+Create a reference:
 ```bash
 git hash-object -t commit --stdin -w <<EOF
 tree 187e91589a3f4f248f4cc8b1a1eca65b5161cc7b
@@ -204,44 +204,44 @@ EOF
 git update-ref refs/heads/itst bb6d
 ```
 
-直接索要引用及其对象：
+Directly request references and their objects:
 ```bash
 git --git-dir=../another-repo.git fetch-pack --no-progress "$(pwd)" refs/heads/itst
 # bb6d205106a1104778884986d8e3594f35170fae refs/heads/itst
 ```
 
-直接推送引用及其对象：
+Directly push references and their objects:
 ```bash
 git send-pack --force --no-progress ../another-repo.git refs/heads/itst
 # To ../another-repo.git
 #  * [new branch]      itst -> itst
 ```
 
-检查远程引用：
+Check remote references:
 ```bash
 git ls-remote ../another-repo.git
 # bb6d205106a1104778884986d8e3594f35170fae	refs/heads/itst
 ```
 
-# 跨库间接传输
+# Indirect Cross-Repository Transfer
 
-跨域但无法建立网络连接时，先创建bundle：
+When cross-domain but unable to establish network connection, first create a bundle:
 ```bash
 git bundle create ../the-bundle refs/heads/itst
 ```
-再解bundle：
+Then unpack the bundle:
 ```bash
 git --git-dir=../another-repo.git bundle unbundle ../the-bundle
 # bb6d205106a1104778884986d8e3594f35170fae refs/heads/itst
 ```
 
-# Lv3命令
+# Lv3 command
 
-首先用Lv0命令修改设置，以讨论设置对Lv3的影响。
+First use Lv0 command to modify settings to discuss the impact of settings on Lv3 commands.
 
-## 指明remote的`git push`和`git fetch`
+## Specifying remote's `git push` and `git fetch`
 
-裸remote：
+Bare remote:
 ```bash
 cat >./config <<EOF
 [remote "another"]
@@ -257,7 +257,7 @@ git fetch another itst:tsts
 #  * [new branch]      itst       -> tsts
 ```
 
-带默认fetch的remote：
+Remote with default fetch:
 ```bash
 cat >./config <<EOF
 [remote "another"]
@@ -272,7 +272,7 @@ git fetch another itst
 #  * [new branch]      itst       -> def/itst
 ```
 
-强制全盘push：
+Force full push:
 ```bash
 cat >./config <<EOF
 [remote "another"]
@@ -288,7 +288,7 @@ git push another
 #  * [new branch]      tsts -> tsts
 ```
 
-## 未指明remote的`git push`和`git fetch`
+## Unspecified remote's `git push` and `git fetch`
 
 ```bash
 cat >./config <<EOF
@@ -304,7 +304,7 @@ git push --verbose
 # To ../another-repo.git
 #  = [up to date]      itst -> itst
 # Everything up-to-date
-# 与git fetch无关
+# Not related to git fetch
 ```
 
 ```bash
@@ -322,10 +322,10 @@ git fetch --verbose
 #  * [new branch]      def/itst   -> another/def/itst
 #  * [new branch]      itst       -> another/itst
 #  * [new branch]      tsts       -> another/tsts
-# 与git push无关
+# Not related to git push
 ```
 
-## 使用Lv3命令修改设置
+## Using Lv3 command to modify settings
 
 ```bash
 (rm -f ./config)
@@ -358,26 +358,26 @@ cat ./config
 # 	mirror = true
 ```
 
-## 关于`git pull`
+## About `git pull`
 
-`git pull`基本上是先`git fetch`再`git merge FETCH_HEAD`；
-`git pull --rebase`基本上是先`git fetch`再`git rebase FETCH_HEAD`。
-由于这个命令高度不可控，非常不推荐使用。
-然而`git pull --ff-only`却非常有用，是先`git fetch`再`git merge --ff-only FETCH_HEAD`。
+`git pull` basically is first `git fetch` then `git merge FETCH_HEAD`;
+`git pull --rebase` basically is first `git fetch` then `git rebase FETCH_HEAD`.
+Since this command is highly uncontrollable, it is not recommended to use it.
+However, `git pull --ff-only` is very useful, which is first `git fetch` then `git merge --ff-only FETCH_HEAD`.
 
-# 复制repo：`git clone`
+# Copy repo: `git clone`
 
-（参见第5章）
+(See Chapter 5)
 
 ## `git clone --mirror`
 
-复制另一个repo的大多数对象、所有普通引用、特殊引用HEAD
+Copy most objects, all normal references, special reference HEAD of another repo
 
 - Lv2
 
 ```bash
-(rm -rf *) # 删掉之前所有东西
-# 先准备好
+(rm -rf *) # Delete all previous things
+# First prepare
 git init --bare copy.git
 # Initialized empty Git repository in /root/copy.git/
 cat >>./copy.git/config <<EOF
@@ -407,7 +407,7 @@ git clone --mirror git@github.com:b1f6c1c4/learn-git-the-super-hard-way.git copy
 
 ## `git clone --bare`
 
-与`--mirror`类似，但是四不像（没有config）
+Similar to `--mirror`, but not like (no config)
 
 - Lv2
 
@@ -468,7 +468,7 @@ git --git-dir=copy-wt/.git fetch origin
 git --git-dir=copy-wt/.git update-ref refs/heads/dev refs/remotes/origin/dev
 # fatal: refs/remotes/origin/dev: not a valid SHA1
 git --git-dir=copy-wt/.git symbolic-ref HEAD refs/heads/dev
-# 如果指定了--no-checkout，省略这一行
+# If --no-checkout is specified, omit this line
 git --git-dir=copy-wt/.git --work-tree=copy-wt checkout-index -fua
 ```
 
@@ -482,7 +482,7 @@ git clone --branch dev git@github.com:b1f6c1c4/learn-git-the-super-hard-way.git 
 # fatal: unable to fork
 ```
 
-# 总结
+# Summary
 
 - Lv2
   - Packfile
@@ -491,25 +491,25 @@ git clone --branch dev git@github.com:b1f6c1c4/learn-git-the-super-hard-way.git 
   - Bundle
     - `git bundle create <file> <refs>*`
     - `git bundle unbundle <file>`
-  - 传输
-    - `git fetch-pack <url> <hash>*` - 需要`git config uploadpack.allowAnySHA1InWant true`
+  - Transfer
+    - `git fetch-pack <url> <hash>*` - Requires `git config uploadpack.allowAnySHA1InWant true`
     - `git fetch-pack <url> <ref>*`
     - `git send-pack --force <url> <local-ref>:<remote-ref>*`
-  - 检查
+  - Check
     - `git ls-remote <url>`
 - Lv3
-  - 配置
+  - Configuration
     - `git remote add <remote> [--mirror=push|fetch] <url>`
     - `git push -u <remote> <local-ref>:<remote-ref>`
-  - 传输
+  - Transfer
     - `git push <remote> <local-ref>:<remote-ref>`
     - `git fetch <remote> <remote-ref>:<local-ref>`
-  - 一键跟上进度
+  - One-step progress following
     - `git pull --ff-only`
-  - 基于远程创建repo
+  - Based on remote to create repo
     - `git clone --mirror <url> <repo>`
     - `git clone --bare <url> <repo>`
     - `git clone [--no-checkout] [--branch <ref>] [--separate-git-dir <repo>] <url> <worktree>`
-  - 不推荐使用的邪恶命令
+  - Not recommended evil commands
     - `git pull [--rebase]`
 

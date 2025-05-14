@@ -66,100 +66,99 @@ git checkout --detach ce013625030ba8dba906f756967f9e9ca394464a
 - HEAD is a special ref pointing to the current branch or commit
 - Use `git symbolic-ref` or `git switch`/`git checkout` to manipulate HEAD
 
-# 基础知识
+# Basic Knowledge
 
-每个repo必须有一个HEAD，无论是否选配了worktree。
+Every repo must have a HEAD, regardless of whether a worktree is configured.
 
-本章不介绍新的Lv2命令，但将常用的Lv3命令进行了Lv2的表示，以方便读者理解工作原理。
+This chapter does not introduce new Lv2 commands, but expresses commonly used Lv3 commands in Lv2 terms to help readers understand how they work.
 
-# 设置HEAD指向某一个commit
+# Setting HEAD to Point to a Commit
 
-注意：`<commit-ish>`如果是一个间接引用，那么会被解引用
+Note: If `<commit-ish>` is an indirect reference, it will be dereferenced
 - Lv2
   - `git update-ref --no-deref HEAD <commit-ish>`
 - Lv3
-  - `git switch --detach <commit-ish>` - 相当于依次执行以下命令：
-    - `git update-ref --no-deref HEAD <commit-ish>` - 修改HEAD
-    - `git read-tree HEAD` - 修改index
-    - `git checkout-index -a` - 修改worktree
-  - 旧语法`git checkout --detach <commit-ish> --`
+  - `git switch --detach <commit-ish>` - Equivalent to executing the following commands in sequence:
+    - `git update-ref --no-deref HEAD <commit-ish>` - Modify HEAD
+    - `git read-tree HEAD` - Modify index
+    - `git checkout-index -a` - Modify worktree
+  - Legacy syntax `git checkout --detach <commit-ish> --`
 
-# 创建直接引用并设置HEAD指向它
+# Creating a Direct Reference and Setting HEAD to Point to It
 
-- Lv2：一步一步来即可
+- Lv2: Just do it step by step
 - Lv3
-  - `git switch -c <branch> <commit-ish>` - 相当于依次执行以下命令：
-    - `git update-ref --no-deref refs/heads/<branch> <commit-ish>` - 创建直接引用
-    - `git symbolic-ref HEAD refs/heads/<branch>` - 修改HEAD
-    - `git read-tree HEAD` - 修改index
-    - `git checkout-index -a` - 修改worktree
-  - 旧语法`git checkout -b <branch> <commit-ish> --`
+  - `git switch -c <branch> <commit-ish>` - Equivalent to executing the following commands in sequence:
+    - `git update-ref --no-deref refs/heads/<branch> <commit-ish>` - Create direct reference
+    - `git symbolic-ref HEAD refs/heads/<branch>` - Modify HEAD
+    - `git read-tree HEAD` - Modify index
+    - `git checkout-index -a` - Modify worktree
+  - Legacy syntax `git checkout -b <branch> <commit-ish> --`
 
-
-# 设置HEAD指向某一个直接引用
+# Setting HEAD to Point to a Direct Reference
 
 - Lv2
   - `git symbolic-ref HEAD <ref>`
 - Lv3
-  - `git switch <ref>` - 相当于依次执行以下命令：
-    - `git symbolic-ref HEAD <ref>` - 修改HEAD
-    - `git reset HEAD -- .` - 修改index
-    - `git checkout-index -a` - 修改worktree
-  - 旧语法`git checkout <ref> --`
+  - `git switch <ref>` - Equivalent to executing the following commands in sequence:
+    - `git symbolic-ref HEAD <ref>` - Modify HEAD
+    - `git reset HEAD -- .` - Modify index
+    - `git checkout-index -a` - Modify worktree
+  - Legacy syntax `git checkout <ref> --`
 
-# 详解`git checkout`
+# Detailed Explanation of `git checkout`
 
-注意：该命令只有旧语法，请避免使用。
+Note: This command only has legacy syntax, please avoid using it.
 
-必须在以下几种用法中选一种：
-- `git checkout -- <path>` - 根据index更新worktree，见第3章
-  - 请使用新语法：`git restore [--worktree] -- <path>`
-- `git checkout [--detach] [<commit-ish>] --` - 修改HEAD、index、worktree，见上面（留空`<tree-ish>`表示HEAD）
-  - 请使用新语法：`git switch <commit-ish>`
-- `git checkout <commit-ish> -- <path>` - 根据tree更新index和worktree，见第3章
-  - 请使用新语法：`git restore --source <commit-ish> --stage --worktree -- <path>`
+You must choose one of the following usages:
+- `git checkout -- <path>` - Update worktree based on index, see Chapter 3
+  - Please use new syntax: `git restore [--worktree] -- <path>`
+- `git checkout [--detach] [<commit-ish>] --` - Modify HEAD, index, worktree, see above (empty `<tree-ish>` means HEAD)
+  - Please use new syntax: `git switch <commit-ish>`
+- `git checkout <commit-ish> -- <path>` - Update index and worktree based on tree, see Chapter 3
+  - Please use new syntax: `git restore --source <commit-ish> --stage --worktree -- <path>`
 
-# 详解`git reset`
+# Detailed Explanation of `git reset`
 
-必须在以下几种用法中选一种：
-- `git reset [<tree-ish>] -- <path>` - 根据`<commit-ish>`修改index，见第3章
-  - 请使用新语法：`git restore [--source <commit-ish>] --stage -- <path>`
-- `git reset --soft [<commit-ish>] --` - 相当于依次执行以下命令：（留空`<tree-ish>`表示HEAD）
-  - `git update-ref HEAD <commit-ish>` - 修改HEAD*或者*HEAD指向的引用
-- `git reset [--mixed] [<commit-ish>] --` - 相当于依次执行以下命令：（留空`<tree-ish>`表示HEAD）
-  - `git update-ref HEAD <commit-ish>` - 修改HEAD*或者*HEAD指向的引用
-  - `git restore --staged -- :/` - 根据HEAD修改index，见第3章
-- `git reset --hard [<commit-ish>] --` - 相当于依次执行以下命令：（留空`<tree-ish>`表示HEAD）
-  - `git update-ref HEAD <commit-ish>` - 修改HEAD*或者*HEAD指向的引用
-  - `git restore --staged --worktree -- :/` - 根据HEAD修改index，见第3章
+You must choose one of the following usages:
+- `git reset [<tree-ish>] -- <path>` - Modify index based on `<commit-ish>`, see Chapter 3
+  - Please use new syntax: `git restore [--source <commit-ish>] --stage -- <path>`
+- `git reset --soft [<commit-ish>] --` - Equivalent to executing the following commands in sequence: (empty `<tree-ish>` means HEAD)
+  - `git update-ref HEAD <commit-ish>` - Modify HEAD *or* the reference HEAD points to
+- `git reset [--mixed] [<commit-ish>] --` - Equivalent to executing the following commands in sequence: (empty `<tree-ish>` means HEAD)
+  - `git update-ref HEAD <commit-ish>` - Modify HEAD *or* the reference HEAD points to
+  - `git restore --staged -- :/` - Modify index based on HEAD, see Chapter 3
+- `git reset --hard [<commit-ish>] --` - Equivalent to executing the following commands in sequence: (empty `<tree-ish>` means HEAD)
+  - `git update-ref HEAD <commit-ish>` - Modify HEAD *or* the reference HEAD points to
+  - `git restore --staged --worktree -- :/` - Modify index based on HEAD, see Chapter 3
 
-# 详解`git commit`
+# Detailed Explanation of `git commit`
 
-相当于依次执行以下命令：
+Equivalent to executing the following commands in sequence:
 - `git write-tree`
 - `git commit-tree <new-tree> -p HEAD`
-- `git update-ref HEAD <new-commit>` - 修改HEAD*或者*HEAD指向的引用
+- `git update-ref HEAD <new-commit>` - Modify HEAD *or* the reference HEAD points to
 
-# 备注
+# Notes
 
-- 以下几个命令效果相同：
+- The following commands have the same effect:
   - `git restore --source HEAD --stage --worktree -- :/
   - `git reset --hard [HEAD]`
-  - （旧语法）`git checkout -f [HEAD] --`
-  - （旧语法）`git checkout -f HEAD -- .`
-- 以下几个命令效果相同，但跟以上命令完全不相同：
+  - (Legacy syntax) `git checkout -f [HEAD] --`
+  - (Legacy syntax) `git checkout -f HEAD -- .`
+- The following commands have the same effect, but are completely different from the above commands:
   - `git restore -- :/
   - `git restore --worktree -- :/
   - `git restore --stage --worktree -- :/
-  - （旧语法）`git checkout -f -- .`
-- 以下命令没有任何效果：
-  - `git switch <branch>`（假设HEAD已经指向`refs/heads/<branch>`）
-- 在HEAD不是间接引用的情况下，以下几个命令效果相同：
+  - (Legacy syntax) `git checkout -f -- .`
+- The following command has no effect:
+  - `git switch <branch>` (assuming HEAD already points to `refs/heads/<branch>`)
+- When HEAD is not an indirect reference, the following commands have the same effect:
   - `git reset --hard <commit-ish>`
   - `git switch --detach <commit-ish>`
-  - （旧语法）`git checkout -f --detach <commit-ish>`
+  - (Legacy syntax) `git checkout -f --detach <commit-ish>`
 
-# 总结
+# Summary
 
 - Lv3
   - `git switch --detach <commit-ish>`

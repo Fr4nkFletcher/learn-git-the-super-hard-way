@@ -254,17 +254,17 @@ git show efd4~
 # +hello
 ```
 
-# 从commit找到tree和blob
+# Finding Tree and Blob from Commit
 
 - Lv2
 
 ```bash
-# 找到commit efd4对应的tree：
-# 注意：运行结果与手动写efd4^{tree}无异
+# Find the tree corresponding to commit efd4:
+# Note: The result is the same as manually writing efd4^{tree}
 git ls-tree efd4
 # 100644 blob ce013625030ba8dba906f756967f9e9ca394464a	name.ext
 # 100755 blob ce013625030ba8dba906f756967f9e9ca394464a	name2.ext
-# 找到commit efd4（对应的tree）的/name.ext：
+# Find /name.ext in commit efd4 (corresponding tree):
 git ls-tree efd4 -- name.ext
 # 100644 blob ce013625030ba8dba906f756967f9e9ca394464a	name.ext
 ```
@@ -272,26 +272,26 @@ git ls-tree efd4 -- name.ext
 - Lv3
 
 ```bash
-# 找到commit efd4对应的tree：
-# 注意：运行结果与只写efd4有本质差异
+# Find the tree corresponding to commit efd4:
+# Note: The result is fundamentally different from just writing efd4
 git show efd4^{tree}
 # tree efd4^{tree}
 #
 # name.ext
 # name2.ext
-# 找到commit efd4（对应的tree）的/name.ext：
-# 注意语法与git ls-tree完全不同：
-# git ls-tree是给定一个tree，可选地根据路径找到另一个tree或者tree的行
-# git show是给定一个对象，自动判断类型并展示
+# Find /name.ext in commit efd4 (corresponding tree):
+# Note: The syntax is completely different from git ls-tree:
+# git ls-tree takes a tree and optionally finds another tree or tree entry based on path
+# git show takes an object and automatically determines its type to display
 git show efd4:name.ext
 # hello
 ```
 
-# 创建tag
+# Creating Tags
 
-注意：你可以让tag指向tag，虽然没有什么卵用
+Note: You can make a tag point to another tag, though it's not very useful
 
-- Lv1 模仿commit的创建方法即可创建
+- Lv1 Can be created by imitating the commit creation method
 
 - Lv2
 
@@ -308,22 +308,22 @@ EOF
 ```
 
 - Lv3
-*特别注意：`git tag -a`命令不仅仅创建了tag对象，还建立了新的引用在`refs/tags/the-tag`。*
+*Special note: The `git tag -a` command not only creates a tag object but also establishes a new reference at `refs/tags/the-tag`.*
 
 ```bash
-# 该命令没有输出
+# This command has no output
 GIT_COMMITTER_NAME=b1f6c1c4 \
 GIT_COMMITTER_EMAIL=b1f6c1c4@gmail.com \
 GIT_COMMITTER_DATE='1600000000 +0800' \
 git tag -a -m 'The tag message' the-tag efd4:name.ext
-# 需要用如下命令找到新创建的对象
+# Need to use the following command to find the newly created object
 git rev-parse the-tag
 # 9cb6a0ecbdc1259e0a88fa2d8ac4725195b4964d
 ```
 
-# 查看tag
+# Viewing Tags
 
-- Lv0 模仿commit的查看方法即可
+- Lv0 Can be viewed by imitating the commit viewing method
 
 - Lv2
 
@@ -335,7 +335,7 @@ git cat-file tag 9cb6
 # tagger b1f6c1c4 <b1f6c1c4@gmail.com> 1600000000 +0800
 #
 # The tag message
-# 注意：如果想要查看tag指向的对象，只需要修改type即可：
+# Note: To view the object pointed to by the tag, just change the type:
 git cat-file blob 9cb6
 # hello
 ```
@@ -343,7 +343,7 @@ git cat-file blob 9cb6
 - Lv3
 
 ```bash
-# 注意：git show同时显示tag本身和tag指向的对象的信息
+# Note: git show displays both the tag itself and the information of the object it points to
 git show 9cb6
 # tag the-tag
 # Tagger: b1f6c1c4 <b1f6c1c4@gmail.com>
@@ -353,22 +353,22 @@ git show 9cb6
 # hello
 ```
 
-# 检查文件系统
+# Checking the file system
 
-查找并删除无用对象：（**有一定危险，可能会删掉有用的东西**）
+Finding and deleting unused objects: (**Some risk, may delete useful things**)
 - Lv2
 
 ```bash
 (git update-ref HEAD efd4)
 git count-objects
 # 6 objects, 24 kilobytes
-# 列出没有在任何引用中使用的对象
+# List objects not used in any reference
 git fsck --unreachable
 # unreachable tag aba3692b60790d098d3f6682555214f3bf09f7da
-# 列出没有在任何引用或对象中使用的对象
+# List objects not used in any reference or object
 git fsck
 # dangling tag aba3692b60790d098d3f6682555214f3bf09f7da
-# 删除以上（**有一定危险，可能会删掉有用的东西**）
+# Delete above (**Some risk, may delete useful things**)
 git prune
 git count-objects
 # 5 objects, 20 kilobytes
@@ -376,7 +376,7 @@ git fsck --unreachable
 git fsck
 ```
 
-检查文件系统完整性：
+Checking file system integrity:
 - Lv2
 
 ```bash
@@ -389,12 +389,12 @@ mv ../evil objects/ce/013625030ba8dba906f756967f9e9ca394464a
 git fsck --connectivity-only
 ```
 
-# "修改"对象
+# "Modifying" Objects
 
-Git对象本身是无法修改的，但是Git提供了一种机制使得我们可以用一个新的对象来覆盖某个现成对象，
-在访问原对象的时候会被自动定向到新的对象中。
+Git objects themselves cannot be modified, but Git provides a mechanism so that we can use a new object to overwrite an existing object,
+when accessing the original object will be automatically redirected to the new object.
 
-若要将efd4替换为另外的一个commit，首先先创建一个commit：
+If we want to replace efd4 with another commit, first create a commit:
 ```bash
 git hash-object -t commit --stdin -w <<EOF
 tree 58417991a0e30203e7e9b938f62a9a6f9ce10a9a
@@ -407,7 +407,7 @@ EOF
 # 9f3162e7fd9f1d41b704c0064c62714d7e699643
 ```
 
-## 添加replace
+## Adding replace
 
 - Lv0
 
@@ -423,7 +423,7 @@ echo '9f3162e7fd9f1d41b704c0064c62714d7e699643' >refs/replace/efd4f82f6151bd20b1
 git replace -f efd4 9f31
 ```
 
-注意：若成环会导致错误
+Note: If it forms a loop, it will cause an error
 ```bash
 (git replace --delete efd4 >/dev/null)
 git replace -f efd4 9f31
@@ -434,13 +434,13 @@ git cat-file commit efd4
 ```
 
 - Lv3
-无需提前创建，直接使用vim方便地修改对象：（此时要求新旧对象类型一致）
+No need to create in advance, directly use vim conveniently to modify objects: (At this time, it requires that the new and old object types are consistent)
 
 ```sh
 git replace --edit efd4
 ```
 
-## 列出所有replace
+## Listing all replaces
 
 - Lv3
 
@@ -449,9 +449,9 @@ git replace -l --format=long
 # efd4f82f6151bd20b167794bc57c66bbf82ce7dd (commit) -> 9f3162e7fd9f1d41b704c0064c62714d7e699643 (commit)
 ```
 
-## 分别访问新旧对象
+## Accessing new and old objects
 
-除非使用Lv0方式或者`--no-replace-objects`，否则访问efd4的时候总会被重定向到9f31：
+Unless using Lv0 method or `--no-replace-objects`, accessing efd4 will always be redirected to 9f31:
 
 - Lv2
 
@@ -463,7 +463,7 @@ git cat-file commit efd4
 # committer Mx. Evil <evil@gmail.com> 1600000000 -0400
 #
 # OOF.. This is a fake one... hahahaha!
-# 注意--no-replace-objects是总的参数，不是cat-file自己的
+# Note--no-replace-objects is a total parameter, not a cat-file itself
 git --no-replace-objects cat-file commit efd4
 # tree 58417991a0e30203e7e9b938f62a9a6f9ce10a9a
 # parent d4dafde7cd9248ef94c0400983d51122099d312a
@@ -494,7 +494,7 @@ git --no-replace-objects show efd4
 #     or by the option '-m'
 ```
 
-## 取消replace，保留新旧两个对象
+## Canceling replace, keeping new and old objects
 
 - Lv0
 
@@ -510,12 +510,11 @@ git replace --delete efd4
 # Deleted replace ref 'efd4f82f6151bd20b167794bc57c66bbf82ce7dd'
 ```
 
-# 给对象添加备注
+# Adding Notes to Objects
 
-Git支持给任意对象添加备注，其本质是一个commit，其tree列出了备注内容blob和对应的对象SHA1（作为文件名）。
-每个对象至多有一个备注。
+Git supports adding notes to any object, its essence is a commit, whose tree lists the notes content blob and corresponding object SHA1 (as filename). Each object can have at most one note.
 
-## 添加备注
+## Adding Notes
 
 - Lv1
 
@@ -550,9 +549,9 @@ GIT_COMMITTER_DATE='1514736120 +0800' \
 git notes add -f -m 'notes for blob' ce01
 ```
 
-`git notes edit`会打开vim并编辑notes。
+`git notes edit` will open vim to edit notes.
 
-## 查看备注
+## Viewing Notes
 
 - Lv2
 
@@ -596,7 +595,7 @@ git show efd4
 #     additional notes
 ```
 
-## 删除备注
+## Deleting Notes
 
 - Lv1
 
@@ -619,7 +618,7 @@ git notes list
 - Lv3
 
 ```bash
-# 由于需要重新创建commit，必须指定author和committer
+# Since a new commit needs to be created, author and committer must be specified
 GIT_AUTHOR_NAME=author \
 GIT_AUTHOR_EMAIL=author@gmail.com \
 GIT_AUTHOR_DATE='1234567890 +0800' \
@@ -631,7 +630,7 @@ git notes remove ce01
 git notes list
 ```
 
-# 总结
+# Summary
 
 - Lv1
   - `git hash-object -t <type> [--stdin|<file>] -w`
@@ -643,13 +642,13 @@ git notes list
   - `git ls-tree <SHA1> -- [<path>]`
   - `git count-objects`
   - `git fsck [--unreachable] [--connectivity-only]`
-  - `git prune` - **有一定危险，可能会删掉有用的东西**
+  - `git prune` - **Some risk, may delete useful things**
   - `git replace -f <original> <replacement>`
 - Lv3
-  - `git tag -a -m <message> <name> <object>` - 同时创建新引用在`refs/tags/<name>`
+  - `git tag -a -m <message> <name> <object>` - Also create new reference at `refs/tags/<name>`
   - `git show <commit>`
-  - `git show <tree>` - 如`HEAD^{tree}`
-  - `git show <blob>` - 如`HEAD:index.js`
+  - `git show <tree>` - Like `HEAD^{tree}`
+  - `git show <blob>` - Like `HEAD:index.js`
   - `git replace --edit <original>`
   - `git replace -l --format=long`
   - `git replace --delete <original>`

@@ -35,7 +35,7 @@ git config --list
 - Use `git config` to set user information and create aliases
 - Use `git config --list` to view all configuration settings
 
-# 全局gitignore
+# Global gitignore
 
 ```bash
 cat - >~/.gitignore <<EOF
@@ -52,8 +52,8 @@ git config --global core.excludesfile ~/.gitignore
 
 # Lv5
 
-（摘自第6章）
-有一类merge情况是，需要用其他分支 *完全取代* 当前分支的某一目录。
+(Excerpt from Chapter 6)
+There is a type of merge situation where you need to *completely replace* a directory in the current branch with that from another branch.
 ```sh
 git-mnfss() {
   git rm --cached -r -- $1

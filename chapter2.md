@@ -85,12 +85,12 @@ git update-ref -d refs/heads/master
 - symbolic refs point to other refs
 - use `git update-ref` and `git symbolic-ref` to manipulate refs
 
-# 创建直接引用
+# Creating Direct References
 
-注：若引用已存在，则会覆盖
+Note: If the reference already exists, it will be overwritten
 
 - Lv0
-该操作非常危险，因为没有保存操作记录。
+This operation is very dangerous because it doesn't save operation records.
 
 ```bash
 mkdir -p ./refs/heads/
@@ -99,7 +99,7 @@ echo d4dafde7cd9248ef94c0400983d51122099d312a > ./refs/tags/tg1
 ```
 
 - Lv2
-该操作会在`<repo>/logs/refs/heads/br1`中留下操作记录。
+This operation will leave operation records in `<repo>/logs/refs/heads/br1`.
 
 ```bash
 git update-ref --no-deref -m 'Reason for update' refs/heads/br1 d4da
@@ -107,16 +107,16 @@ git update-ref --no-deref refs/tags/tg1 d4da
 ```
 
 - Lv3
-该操作会在`<repo>/logs/refs/heads/br1`中留下操作记录，原因是`branch: Created from ...`或者`branch: Reset to ...`。
+This operation will leave operation records in `<repo>/logs/refs/heads/br1`, with reasons like `branch: Created from ...` or `branch: Reset to ...`.
 
 ```bash
-# 此处必须省略refs/heads/
+# Must omit refs/heads/ here
 git branch -f br1 d4da
-# 此处必须省略refs/tags/
+# Must omit refs/tags/ here
 git tag -f tg1 d4da
 ```
 
-## 查看直接引用
+## Viewing Direct References
 
 - Lv0
 
@@ -137,17 +137,18 @@ git rev-parse refs/tags/tg1
 ```
 
 - Lv3
+Lv3 commands can only see the dereferenced object, cannot clearly see the indirect reference itself
 
 ```bash
-# 此处必须省略refs/heads/
+# Must omit refs/heads/ here
 git branch -avl br1
 #   br1 d4dafde The commit message May have multiple lines!
-# 此处必须省略refs/tags/
+# Must omit refs/tags/ here
 git tag -l tg1
 # tg1
 ```
 
-# 创建间接引用
+# Creating Indirect References
 
 - Lv0
 
@@ -161,7 +162,7 @@ echo 'ref: refs/heads/br1' > ./refs/heads/br2
 git symbolic-ref refs/heads/br2 refs/heads/br1
 ```
 
-# 查看间接引用
+# Viewing Indirect References
 
 - Lv0
 
@@ -171,7 +172,7 @@ cat ./refs/heads/br2
 ```
 
 - Lv2
-注意以下两者的区别
+Note the difference between the following two
 
 ```bash
 git symbolic-ref refs/heads/br2
@@ -181,17 +182,17 @@ git rev-parse refs/heads/br2
 ```
 
 - Lv3
-Lv3命令只能看到解引用后的对象，无法看清楚间接引用本身
+Lv3 commands can only see the dereferenced object, cannot clearly see the indirect reference itself
 
 ```bash
-# 此处必须省略refs/heads/
+# Must omit refs/heads/ here
 git branch -avl br1
 #   br1 d4dafde The commit message May have multiple lines!
 git branch -avl br2
 #   br2 d4dafde The commit message May have multiple lines!
 ```
 
-# 删除引用
+# Deleting References
 
 - Lv0
 
@@ -204,11 +205,11 @@ rm ./refs/tags/tg1
 - Lv2
 
 ```bash
-# 以下操作会删除refs/heads/br1
+# The following operation will delete refs/heads/br1
 git update-ref -d refs/heads/br1
 git update-ref -d --no-deref refs/heads/br1
-git update-ref -d refs/heads/br2 # 注意--no-deref的作用
-# 以下操作会删除refs/heads/br2
+git update-ref -d refs/heads/br2 # Note the effect of --no-deref
+# The following operation will delete refs/heads/br2
 git update-ref -d --no-deref refs/heads/br2
 (git symbolic-ref refs/heads/br2 refs/heads/br1)
 git symbolic-ref --delete refs/heads/br2
@@ -217,33 +218,33 @@ git symbolic-ref --delete refs/heads/br2
 - Lv3
 
 ```bash
-# 此处必须省略refs/heads/
+# Must omit refs/heads/ here
 (git update-ref --no-deref refs/heads/br1 d4da)
 git branch -D br1
 # Deleted branch br1 (was d4dafde).
 (git symbolic-ref refs/heads/br2 refs/heads/br1)
 git branch -D br2
 # Deleted branch br2 (was refs/heads/br1).
-# 此处必须省略refs/tags/
+# Must omit refs/tags/ here
 (git update-ref --no-deref refs/tags/tg1 d4da)
 git tag -d tg1
 # Deleted tag 'tg1' (was d4dafde)
 ```
 
-# 关于`update-ref`的特别备注
+# Special Notes About `update-ref`
 
-带`--no-deref`表明修改引用本身（不论其是什么类型的）
-不带`--no-deref`表明修改引用本身（如果其不存在或者是直接引用）或者引用的引用（如果其是间接引用）
+With `--no-deref` means modifying the reference itself (regardless of its type)
+Without `--no-deref` means modifying the reference itself (if it doesn't exist or is a direct reference) or the reference's reference (if it's an indirect reference)
 ```bash
-# 以下操作会修改refs/heads/br1
+# The following operations will modify refs/heads/br1
 git update-ref refs/heads/br1 efd4
 git update-ref --no-deref refs/heads/br1 efd4
-git update-ref refs/heads/br2 efd4 # 注意--no-deref的作用
-# 以下操作会修改refs/heads/br2，由间接引用变为直接引用
+git update-ref refs/heads/br2 efd4 # Note the effect of --no-deref
+# The following operation will modify refs/heads/br2, changing from indirect to direct reference
 git update-ref --no-deref refs/heads/br2 efd4
 ```
 
-# 查看历史记录
+# Viewing History
 
 ```bash
 git update-ref --no-deref refs/heads/br1 d4da
@@ -263,11 +264,11 @@ cat ./logs/refs/heads/br1
 git reflog refs/heads/br1
 ```
 
-# 批量查看引用
+# Batch Viewing References
 
 - Lv2
 
-`git show-ref`接类似于`git rev-parse`的东西，而`git for-each-ref`接前缀：
+`git show-ref` takes something similar to `git rev-parse`, while `git for-each-ref` takes a prefix:
 
 ```bash
 (git update-ref --no-deref HEAD d4da)
@@ -309,9 +310,9 @@ git for-each-ref refs/remotes/
 # d4dafde7cd9248ef94c0400983d51122099d312a commit	refs/remotes/origin/br3
 ```
 
-两个都不能列出`$GIT_DIR`下的引用！
+Neither can list references under `$GIT_DIR`!
 
-# 给定commit-ish，逆向查找引用
+# Finding References Given a commit-ish
 
 - Lv1
 
@@ -349,36 +350,36 @@ git describe --always d4da~
 # fatal: Not a valid object name d4da~
 ```
 
-添加`--dirty`可以在结果后面添加`-dirty`，特别适用于版本号。
+Adding `--dirty` will append `-dirty` to the result, which is particularly useful for version numbers.
 
-# 总结
+# Summary
 
-- 添加/修改/删除
+- Add/Modify/Delete
   - Lv0
-    - 不推荐
+    - Not recommended
   - Lv2
     - `git rev-parse <object>`
-    - `git update-ref --no-deref <ref> [-d|<new>]` - 修改`<ref>`
-    - `git update-ref <ref> [-d|<new>]` - 修改`<ref>`或者其引用的引用
+    - `git update-ref --no-deref <ref> [-d|<new>]` - Modify `<ref>`
+    - `git update-ref <ref> [-d|<new>]` - Modify `<ref>` or its reference's reference
     - `git symbolic-ref --delete <ref>`
     - `git symbolic-ref <from> <to>`
   - Lv3
-    - `git branch -f <branch> <commit-ish>` - 只能操纵`refs/heads/`
-    - `git branch -D <branch>` - 只能操纵`refs/heads/`
-    - `git tag -f <tag> <commit-ish>` - 只能操纵`refs/tags/`
-    - `git tag -d <tag>` - 只能操纵`refs/tags/`
-- 查看历史记录
+    - `git branch -f <branch> <commit-ish>` - Can only manipulate `refs/heads/`
+    - `git branch -D <branch>` - Can only manipulate `refs/heads/`
+    - `git tag -f <tag> <commit-ish>` - Can only manipulate `refs/tags/`
+    - `git tag -d <tag>` - Can only manipulate `refs/tags/`
+- View History
   - Lv0
     - `cat <repo>/logs/<ref>`
   - Lv3
     - `git reflog`
-- 单独查看
+- View Single Reference
   - Lv0
     - `cat <repo>/<ref>`
   - Lv2
-    - `git rev-parse <ref>` - 可以接多个但是不如`git show-ref`好用
+    - `git rev-parse <ref>` - Can take multiple but not as convenient as `git show-ref`
     - `git symbolic-ref <ref>`
-- 批量查看
+- Batch View
   - Lv2
     - `git show-ref [--head] [<ref>...]`
     - `git for-each-ref [<ref-pattern>...]`
@@ -386,14 +387,14 @@ git describe --always d4da~
     - `git branch -av`
     - `git branch -avl <branch-pattern>`
     - `git tag -l <tag-pattern>`
-- 给定commit-ish，逆向查找引用
+- Find References Given a commit-ish
   - Lv2
     - `git name-rev [--tags] --all|<commit-ish>`
   - Lv3
-    - `git describe [--all] [--always] [<commit-ish>]` - 留空表示HEAD
+    - `git describe [--all] [--always] [<commit-ish>]` - Empty means HEAD
     - `git describe [--all] [--always] --dirty`
 
-# 扩展阅读
+# Further Reading
 
 [git-rev-parse: specifying revisions](https://git-scm.com/docs/git-rev-parse#_specifying_revisions)
 

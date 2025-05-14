@@ -47,9 +47,9 @@ git init --separate-git-dir "$(pwd)" ../default-tree
 # Initialized empty Git repository in /root/
 ```
 
-# 查看更改
+# Viewing Changes
 
-在开始之前，先创建几个对象：
+Before starting, create a few objects:
 ```bash
 echo '1' | git hash-object -t blob --stdin -w
 # d00491fd7e5bb6fa28c517a0bb32b8b506539d4d
@@ -94,9 +94,7 @@ EOF
 # afc38c96c82ea65991322a5d28995b0851ff7edd
 ```
 
-- Lv2
-
-基于第一个tree-ish，查看第二个tree-ish的修改：
+Based on the first tree-ish, view the changes in the second tree-ish:
 ```bash
 git diff-tree a237 aa25
 # :100755 000000 0cfbf08886fca9a91cb753ec8734c84fcbe52c9f 0000000000000000000000000000000000000000 D	2.txt
@@ -109,7 +107,7 @@ git diff-tree afc3
 # :000000 100755 0000000000000000000000000000000000000000 00750edc07d6415dcc07ae0351e9397b0222b7ba A	3.txt
 ```
 
-基于tree-ish，查看index的修改：
+Based on tree-ish, view changes in the index:
 ```bash
 git read-tree a237
 git diff-index --cached aa25
@@ -117,7 +115,7 @@ git diff-index --cached aa25
 # :100755 000000 00750edc07d6415dcc07ae0351e9397b0222b7ba 0000000000000000000000000000000000000000 D	3.txt
 ```
 
-基于tree-ish，查看worktree的修改：
+Based on tree-ish, view changes in the worktree:
 ```bash
 rm -rf ../default-tree/*
 git --work-tree=../default-tree diff-index aa25
@@ -125,7 +123,7 @@ git --work-tree=../default-tree diff-index aa25
 # :100755 000000 00750edc07d6415dcc07ae0351e9397b0222b7ba 0000000000000000000000000000000000000000 D	3.txt
 ```
 
-基于index，查看worktree的修改：
+Based on the index, view changes in the worktree:
 ```bash
 git --work-tree=../default-tree diff-files
 # :100644 000000 d00491fd7e5bb6fa28c517a0bb32b8b506539d4d 0000000000000000000000000000000000000000 D	1.txt
@@ -134,26 +132,26 @@ git --work-tree=../default-tree diff-files
 
 - Lv3
 
-* `git diff <tree-ish> <tree-ish> -- [<path>]` 相当于 `git diff-tree -p <tree-ish> <tree-ish> -- [path]`
-* `git show <commit-ish> -- [<path>]` 相当于 `git diff-tree -p <commit-ish> -- [<path>]`
-* `git diff [<tree-ish>] -- [<path>]` 相当于 `git diff-index -p [<tree-ish>] -- [<path>]`
-* `git diff --cached [<tree-ish>] -- [<path>]` 相当于 `git diff-index -p --cached [<tree-ish>] -- [<path>]`
-* `git diff -- <path>` 相当于 `git diff-files -p <path>`
-* `git status` 相当于 `git diff-index HEAD`、`git diff-index --cached HEAD`、`git clean -nd`
-    * 注意这里没有`-p`，意味着仅仅列出哪些文件发生了变化，但并不列出具体差异
-    * `git clean -nd`意味着还要列出新增了哪些文件
+* `git diff <tree-ish> <tree-ish> -- [<path>]` is equivalent to `git diff-tree -p <tree-ish> <tree-ish> -- [path]`
+* `git show <commit-ish> -- [<path>]` is equivalent to `git diff-tree -p <commit-ish> -- [<path>]`
+* `git diff [<tree-ish>] -- [<path>]` is equivalent to `git diff-index -p [<tree-ish>] -- [<path>]`
+* `git diff --cached [<tree-ish>] -- [<path>]` is equivalent to `git diff-index -p --cached [<tree-ish>] -- [<path>]`
+* `git diff -- <path>` is equivalent to `git diff-files -p <path>`
+* `git status` is equivalent to `git diff-index HEAD`, `git diff-index --cached HEAD`, `git clean -nd`
+    * Note: There is no `-p` here, which means it only lists which files have changed, but does not show the specific differences
+    * `git clean -nd` also lists which new files have been added
 
 - Lv4: `git st`
 
-`git status -sb`，比起`git status`要简明扼要一些。
+`git status -sb` is more concise than `git status`.
 
-# 处理修改
+# Handling Changes
 
-类似于`git bundle create`将若干对象打包成字节流以便离线传送，`git diff-* -p|--patch`将修改打包成字节流以便离线传送。
-类似于`git bundle unbundle`将字节流解包成对象，`git apply`将字节流解包出修改。
-需要注意的是，`--patch`产生的是human-readable data，但`git bundle`是machine-readable only。
+Similar to how `git bundle create` packages objects into a byte stream for offline transfer, `git diff-* -p|--patch` packages changes into a byte stream for offline transfer.
+Similar to how `git bundle unbundle` unpacks a byte stream into objects, `git apply` unpacks a byte stream into changes.
+Note: `--patch` produces human-readable data, but `git bundle` is machine-readable only.
 
-打包修改：
+Package changes:
 ```bash
 git diff-tree --patch a237 aa25 | tee ../the.patch
 # diff --git a/2.txt b/2.txt
@@ -172,7 +170,7 @@ git diff-tree --patch a237 aa25 | tee ../the.patch
 # +3
 ```
 
-解包修改至worktree:
+Unpack changes to the worktree:
 ```bash
 rm -rf ../default-tree/*
 git read-tree a237
@@ -189,7 +187,7 @@ git ls-files -s
 # 100755 0cfbf08886fca9a91cb753ec8734c84fcbe52c9f 0	2.txt
 ```
 
-解包修改至index：
+Unpack changes to the index:
 ```bash
 git ls-files -s
 # 100644 d00491fd7e5bb6fa28c517a0bb32b8b506539d4d 0	1.txt
@@ -203,30 +201,30 @@ ls ../default-tree
 # 3.txt
 ```
 
-# Merge相关概念简介
+# Introduction to Merge-Related Concepts
 
-Merge是git里面最为复杂也最为重要的部分。
-在具体讲解每一个命令之前，先看一下Lv2的big picture：
+Merge is the most complex and important part of git.
+Before explaining each command in detail, let's look at the Lv2 big picture:
 
-- 同一份文件，已知原始版本，如何把两人独自进行的修改整合？
-  - 出现冲突时以我方为准：`git merge-file --ours C A B`
-  - 出现冲突时以对方为准：`git merge-file --theirs C A B`
-  - 出现冲突时串联起来：`git merge-file --union C A B`
-  - 出现冲突时做出标记，手工解决：`git merge-file C A B`
-  - 采用其他工具：（略）
-- 同一个tree，已知原始版本，如何把两人独自进行的修改在文件层面上整合？（不涉及文件内容）
+- For the same file, given the original version, how do you integrate changes made independently by two people?
+  - If a conflict occurs, use our version: `git merge-file --ours C A B`
+  - If a conflict occurs, use their version: `git merge-file --theirs C A B`
+  - If a conflict occurs, concatenate both: `git merge-file --union C A B`
+  - If a conflict occurs, mark it and resolve manually: `git merge-file C A B`
+  - Use other tools: (omitted)
+- For the same tree, given the original version, how do you integrate changes at the file level (not file content)?
   - `git merge-tree C A B`
-- 同一个tree，已知原始版本，对方修改以后，如何把我尚未完善的修改建立在别人的基础上？
+- For the same tree, given the original version, after the other side has made changes, how do you base your unfinished changes on theirs?
   - `git read-tree -m H M`
-- 同一个tree，已知原始版本，如何把两人独自进行的修改整合？
-  - 先解决最简单的冲突，保留复杂冲突的完整信息：`git read-tree -m A C B`
-  - 试着解决最简单的几种冲突：`git merge-index git-merge-one-file`
-- 同一个tree，已知原始版本，如何把多人独自进行的修改整合？
-  - 多次执行`git read-tree -m A C B`即可
+- For the same tree, given the original version, how do you integrate changes made independently by two people?
+  - First resolve the simplest conflicts, keep the full information for complex conflicts: `git read-tree -m A C B`
+  - Try to resolve the simplest types of conflicts: `git merge-index git-merge-one-file`
+- For the same tree, given the original version, how do you integrate changes made independently by multiple people?
+  - Run `git read-tree -m A C B` multiple times
 
-# 3-Way merge基本概念之文件层面的`git merge-file`
+# 3-Way Merge File-Level: `git merge-file`
 
-重要Lv2工具`git merge-file`（无需git dir也无需worktree）：
+Important Lv2 tool `git merge-file` (does not require git dir or worktree):
 ```bash
 cat >fileA <<EOF
 lineB
@@ -248,14 +246,14 @@ lineBD
 ...some stuff...
 lineC
 EOF
-# 计算 fileC + (fileB - fileA)
+# Calculate fileC + (fileB - fileA)
 git merge-file --stdout fileC fileA fileB
 # lineBB
 # ...some stuff...
 # lineCC
 ```
 
-在遇到冲突的情况下，标记出来手工解决：
+When a conflict occurs, mark it for manual resolution:
 ```bash
 git merge-file --stdout fileD fileA fileB
 # <<<<<<< fileD
@@ -277,7 +275,7 @@ git merge-file --stdout --diff3 fileD fileA fileB
 # lineC
 ```
 
-在遇到冲突的情况下，自动解决：
+When a conflict occurs, resolve automatically:
 ```bash
 git merge-file --stdout --our fileD fileA fileB
 # lineBD
@@ -294,9 +292,9 @@ git merge-file --stdout --union fileD fileA fileB
 # lineC
 ```
 
-## tree层面：`git merge-tree`
+## Tree-Level: `git merge-tree`
 
-在开始之前，先创建几个对象：
+Before starting, create a few objects:
 ```bash
 git mktree <<EOF
 100644 blob d00491fd7e5bb6fa28c517a0bb32b8b506539d4d$(printf '\t')1.txt
@@ -315,7 +313,7 @@ EOF
 # d2b78d09d49d1f9b4ae260cf98657de9a2fedaa6
 ```
 
-`git merge-tree C A B`的意义是`(C+(B-A))-C`，参见以下示例
+The meaning of `git merge-tree C A B` is `(C+(B-A))-C`, see the following example
 ```bash
 git ls-tree a237
 # 100644 blob d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	1.txt
@@ -345,27 +343,27 @@ git merge-tree a237 aa25 5de9
 # +4
 ```
 
-当同时存在tree层面和文件层面的修改时，参见以下示例
+When there are both tree-level and file-level changes, see the following example
 ```bash
-# 注意：3.txt包含的是"4"
+# Note: 3.txt contains "4"
 git mktree <<EOF
 100644 blob d00491fd7e5bb6fa28c517a0bb32b8b506539d4d$(printf '\t')1.txt
 100755 blob b8626c4cff2849624fb67f87cd0ad72b163671ad$(printf '\t')3.txt
 EOF
 # 47e3b7857c03c35eae515b36fe3828ef073cc2aa
-# merge-tree产生非常规输出（removed in local），暗示需要处理冲突
+# merge-tree produces non-standard output (removed in local), indicating a conflict needs to be resolved
 git merge-tree 47e3 a237 aa25
 # removed in local
 #   base   100755 b8626c4cff2849624fb67f87cd0ad72b163671ad 3.txt
 #   their  100755 00750edc07d6415dcc07ae0351e9397b0222b7ba 3.txt
 ```
 
-## `git read-tree -m`的Two Tree Merge
+# Two Tree Merge with `git read-tree -m`
 
-`git read-tree -m <tree-ish-H> <tree-ish-M>`试图执行`index=index+(M-H)`。
-对于每一个文件，考虑到H、M、index、worktree四处的状态，有22种具体情况，具体处置方法如下表所示（0表示不存在，不同小写字母表示不同版本）（摘自`man git-read-tree`）：
+`git read-tree -m <tree-ish-H> <tree-ish-M>` tries to execute `index=index+(M-H)`.
+For each file, considering the states in H, M, index, and worktree, there are 22 specific cases. The handling methods are as follows (0 means does not exist, different lowercase letters mean different versions) (from `man git-read-tree`):
 
-| 编号 | worktree | index | H | M | 处置 |
+| No. | worktree | index | H | M | Action |
 | --- | --- | --- | --- | --- | --- |
 | 0 | . | 0 | 0 | 0 | 0 | keep |
 | 1 | . | 0 | 0 | m | index = m |
@@ -396,13 +394,13 @@ git merge-tree 47e3 a237 aa25
 | 21a | m | h | h | m | fail |
 | 21b | w | h | h | m | fail |
 
-对于3a，如果index全空，则执行index=m；若index非空，则keep。
+For 3a, if the index is empty, then execute index=m; if the index is not empty, then keep.
 
-举例如下：
+For example:
 ```bash
 rm -rf ../default-tree/*
 git read-tree 5de9
-# 此处要加-u，来确保index和worktree在stat意义下一致
+# Add -u here to ensure index and worktree are consistent in stat sense
 git --work-tree=../default-tree checkout-index -fu -a
 git ls-files -s
 # 100644 d00491fd7e5bb6fa28c517a0bb32b8b506539d4d 0	1.txt
@@ -427,24 +425,24 @@ ls ../default-tree
 # 1.txt
 # 2.txt
 # 4.txt
-# 总结：
+# Summary:
 # 1.txt hhhh -> keep (#14)
 # 2.txt hhh0 -> index = 0 (#10)
 # 3.txt 000m -> index = m (#1)
 # 4.txt ii00 -> keep (#4)
 ```
 
-## `git read-tree -m`的3-Way Merge
+# 3-Way Merge with `git read-tree -m`
 
-`git read-tree -m [--aggressive] <tree-ish-A> <tree-ish-C> <tree-ish-B>`的意思是：
+The meaning of `git read-tree -m [--aggressive] <tree-ish-A> <tree-ish-C> <tree-ish-B>` is:
 
-* 清空index
-* stage数=1，读取`<tree-ish-A>`至index
-* stage数=2，读取`<tree-ish-C>`至index
-* stage数=3，读取`<tree-ish-B>`至index
-* 按下表变换（表中use表示删掉stage123的，创建一个新的stage0条目），若不能变换则不处理
+* Clear the index
+* Stage 1: read `<tree-ish-A>` into the index
+* Stage 2: read `<tree-ish-C>` into the index
+* Stage 3: read `<tree-ish-B>` into the index
+* According to the table below (use means delete stages 1/2/3 and create a new stage 0 entry), if it cannot be transformed, do nothing
 
-| `--aggressive` | stage1 | stage2 | stage3 | 操作 |
+| `--aggressive` | stage1 | stage2 | stage3 | Action |
 | --- | --- | --- | --- | --- |
 | any | a | a | a | use a |
 | any | a | x | x | use x |
@@ -455,7 +453,7 @@ ls ../default-tree
 | required | a | 0 | 0 | use 0 |
 | required | 0 | x | x | use x |
 
-举例如下：
+For example:
 ```bash
 git ls-tree a237
 # 100644 blob d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	1.txt
@@ -470,17 +468,17 @@ rm -rf ../default-tree/*
 git read-tree 47e3
 git --work-tree=../default-tree checkout-index -fu -a
 git --work-tree=../default-tree read-tree -m a237 47e3 aa25
-# 此时可以看见非0的stage数
+# At this point, you can see non-zero stage numbers
 git ls-files -s
 # 100644 d00491fd7e5bb6fa28c517a0bb32b8b506539d4d 0	1.txt
 # 100755 0cfbf08886fca9a91cb753ec8734c84fcbe52c9f 1	2.txt
 # 100755 b8626c4cff2849624fb67f87cd0ad72b163671ad 2	3.txt
 # 100755 00750edc07d6415dcc07ae0351e9397b0222b7ba 3	3.txt
-# 总结：
+# Summary:
 # 1.txt aaa, collapse
 # 2.txt a00, non-collapse
 # 3.txt 0cb, non-collapse
-# 此时无法write-tree：
+# At this point, write-tree will fail:
 git write-tree
 # 2.txt: unmerged (0cfbf08886fca9a91cb753ec8734c84fcbe52c9f)
 # 3.txt: unmerged (b8626c4cff2849624fb67f87cd0ad72b163671ad)
@@ -491,19 +489,19 @@ git --work-tree=../default-tree checkout-index --stage=all -f --all
 # . .merge_file_m91Yo2 .merge_file_FwwWF7	3.txt
 ```
 
-## `git merge-index`和`git merge-one-file`
+# `git merge-index` and `git merge-one-file`
 
-前述`git read-tree`只解决了最最简单的冲突。为了解决更多冲突，要么手工编辑好再`git update-index`或者`git add`，要么采用自动化工具。
+The previous `git read-tree` only resolves the simplest conflicts. To resolve more conflicts, either manually edit and then `git update-index` or `git add`, or use automation tools.
 
-`git merge-index`负责调用其他工具：
+`git merge-index` is responsible for calling other tools:
 ```bash
-# 注意空格
+# Note: 3.txt contains "4"
 git merge-index echo -a
 # 0cfbf08886fca9a91cb753ec8734c84fcbe52c9f   2.txt 100755  
 #  b8626c4cff2849624fb67f87cd0ad72b163671ad 00750edc07d6415dcc07ae0351e9397b0222b7ba 3.txt  100755 100755
 ```
 
-一种（没有卵用的）操作是调用自带工具`git-merge-one-file`：
+One (not very useful) operation is to call the built-in tool `git-merge-one-file`:
 ```bash
 rm -rf ../default-tree/*
 git read-tree 47e3
@@ -513,7 +511,7 @@ git ls-files -s
 # 100644 d00491fd7e5bb6fa28c517a0bb32b8b506539d4d 0	1.txt
 # 100755 b8626c4cff2849624fb67f87cd0ad72b163671ad 2	3.txt
 # 100755 00750edc07d6415dcc07ae0351e9397b0222b7ba 3	3.txt
-# 这个自带工具非常弱，解决不了什么问题，真心不比--aggressive强多少
+# This built-in tool is very weak, can't solve many problems, honestly not much better than --aggressive
 git --work-tree=../default-tree merge-index git-merge-one-file -a
 # fatal: unable to read blob object e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 # error: Could not stat : No such file or directory
@@ -522,17 +520,17 @@ git --work-tree=../default-tree merge-index git-merge-one-file -a
 # Added 3.txt in both, but differently.
 ```
 
-注意：若提示错误
+Note: If you see the error
 `fatal: unable to read blob object e69de29bb2d1d6434b8b29ae775ad8c2e48c5391`
-则执行
+then run
 `printf '' | git hash-object --stdin -w`
 
-* 问题：在使用外部工具的情况下，有没有更好的解决冲突的办法？
-* 回答：有，即著名的recursive merge。但是由于该算法非常复杂，没有Lv2命令。此处不介绍Lv1实现，而只介绍Lv3的使用方法。
+* Q: Is there a better way to resolve conflicts when using external tools?
+* A: Yes, the famous recursive merge. However, since the algorithm is very complex, there is no Lv2 command. The Lv1 implementation is not introduced here, only the Lv3 usage is shown.
 
-# 原始版本的选择：`git merge-base`
+# Choosing the Original Version: `git merge-base`
 
-为了减少花在查找原始版本（A）的努力，`git merge-base -a <commit>*`可以直接计算出多个commit的极近公共祖先（在偏序关系下没有"最"，只能有"极"）。
+To reduce the effort of finding the original version (A), `git merge-base -a <commit>*` can directly calculate the nearest common ancestor of multiple commits (in a partial order there is no "most", only "nearest").
 
 ```bash
 git merge-base -a afc3 d2b7
@@ -541,63 +539,63 @@ git merge-base -a afc3 d2b7
 
 # Lv3
 
-`git merge -s <strategy>`（除了recursive、subtree、ours以外）实际上就是调用`git merge-<strategy>`。
+`git merge -s <strategy>` (except for recursive, subtree, ours) is essentially calling `git merge-<strategy>`.
 
-而所谓的subtree merge，本质上就是subtree shift非空的recursive merge。
-git会自动计算给B添加的prefix，但也可以通过`-Xsubtree=`来手动指定。
+The so-called subtree merge is essentially a non-empty subtree shift recursive merge.
+Git will automatically calculate the prefix to add to B, but you can also specify it manually with `-Xsubtree=`.
 
-`git merge -s resolve --no-ff --no-commit`实际上就是
-（参见[`git-merge-resolve`源码](https://github.com/git/git/blob/master/git-merge-resolve.sh)）
-- （需要手工指定C）
-- 先执行`git read-tree -u -m --aggressive A C B`
-- 再执行`git merge-index -o git-merge-one-file -a`
-- 在git dir中生成`MERGE_HEAD` `MERGE_MODE` `MERGE_MSG`三个文件
+`git merge -s resolve --no-ff --no-commit` is essentially
+(see [`git-merge-resolve` source code](https://github.com/git/git/blob/master/git-merge-resolve.sh))
+- (You need to specify C manually)
+- First run `git read-tree -u -m --aggressive A C B`
+- Then run `git merge-index -o git-merge-one-file -a`
+- In the git dir, generate the files `MERGE_HEAD`, `MERGE_MODE`, `MERGE_MSG`
 
-`git merge -s octopus --no-ff --no-commit`实际上就是
-（参见[`git-merge-octopus`源码](https://github.com/git/git/blob/master/git-merge-octopus.sh)）
-- 用`git merge-base`算出C
-- 先执行`git read-tree -u -m --aggressive A C B`
-- 再执行`git merge-index -o git-merge-one-file -a`
-- 对其他分支重复以上过程
-- 在git dir中生成`MERGE_HEAD` `MERGE_MODE` `MERGE_MSG`三个文件
+`git merge -s octopus --no-ff --no-commit` is essentially
+(see [`git-merge-octopus` source code](https://github.com/git/git/blob/master/git-merge-octopus.sh))
+- Use `git merge-base` to calculate C
+- First run `git read-tree -u -m --aggressive A C B`
+- Then run `git merge-index -o git-merge-one-file -a`
+- Repeat the above process for other branches
+- In the git dir, generate the files `MERGE_HEAD`, `MERGE_MODE`, `MERGE_MSG`
 
-`git merge --no-ff --no-commit - ours`实际上就是
-- 关于index，什么也不做
-- 在git dir中生成`MERGE_HEAD` `MERGE_MODE` `MERGE_MSG`三个文件
+`git merge --no-ff --no-commit - ours` is essentially
+- For the index, do nothing
+- In the git dir, generate the files `MERGE_HEAD`, `MERGE_MODE`, `MERGE_MSG`
 
-`git merge --no-ff --no-commit -s recursive`的基本思路是
-（参见`man git-merge`）
-- 先用`git merge-base --all`找到所有可能的C
-- 把这些C先行merge一下得到C'
-- 考虑重命名，对A C' B进行3-way merge
-关于recursive，还有很多的参数可以调节，比如
-- `-Xours`类似于`git merge-file --ours`
-- `-Xtheirs`类似于`git merge-file -theirs`
-- `-Xsubtree`指定给B加什么前缀再进行recursive merge
+The basic idea of `git merge --no-ff --no-commit -s recursive` is
+(see `man git-merge`)
+- First use `git merge-base --all` to find all possible C
+- Merge these C to get C'
+- Consider renames, then do a 3-way merge of A, C', B
+For recursive, there are many parameters you can adjust, such as
+- `-Xours` is similar to `git merge-file --ours`
+- `-Xtheirs` is similar to `git merge-file -theirs`
+- `-Xsubtree` specifies what prefix to add to B before doing the recursive merge
 
-若有`--ff`则表明：若A=C或A=B，则不做任何事情。
+If `--ff` is present: if A=C or A=B, do nothing.
 
-若有`--no-commit`则表示：若无冲突，则自动执行`git commit`
+If `--no-commit` is present: if there are no conflicts, automatically run `git commit`
 
-需要注意的是，在`MERGE_HEAD`等文件存在时，`git commit`调用`git commit-tree`时会自动带上几个`-p`参数，生成多个parent的commit，其中第1个parent是HEAD，余下的是`MERGE_HEAD`的内容，也即`git merge`的参数。
+Note: When the files `MERGE_HEAD` etc. exist, `git commit` will automatically add several `-p` parameters when calling `git commit-tree`, generating a commit with multiple parents. The first parent is HEAD, the rest are the contents of `MERGE_HEAD`, i.e., the arguments to `git merge`.
 
 # Lv4
 
-由于很多时候我们希望主动控制要不要创建merge commit（也即手动决定`--ff-only`或者`--no-ff`，且希望在commit之前仔细检查合并是否正确（如跑单元测试），故本文建议使用如下alias：
+Since we often want to control whether to create a merge commit (i.e., manually decide `--ff-only` or `--no-ff`), and want to check the merge before committing (e.g., run unit tests), it is recommended to use the following aliases:
 ```
 alias.mf=merge --ff-only
 alias.mnf=merge --no-ff
 alias.mnfnc=merge --no-ff --no-commit
 ```
 
-其中`git mf`用于`git fetch`之后，`git mnf`用于日常merge其他简单分支，而`git mnfnc`用于尝试merge（也即`git read-tree -u -m`）、跑单元测试再commit的情况。
+Here, `git mf` is used after `git fetch`, `git mnf` is used for daily merges of other simple branches, and `git mnfnc` is used to try merging (i.e., `git read-tree -u -m`), run unit tests, and then commit.
 
 # Lv5
 
-有一类merge情况是，需要用其他分支 *完全取代* 当前分支的某一目录。（第12章整章建立在此基础之上）
-然而，即便`git merge --no-ff -s subtree -Xsubtree=<prefix>`有时也会出错（毕竟是`git read-tree -m`）。
+There is a type of merge situation where you need to *completely replace* a directory in the current branch with that from another branch. (Chapter 12 is based entirely on this.)
+However, even `git merge --no-ff -s subtree -Xsubtree=<prefix>` sometimes fails (after all, it's `git read-tree -m`).
 
-采用以下脚本即可解决：
+Use the following script to solve it:
 ```sh
 git-mnfss() {
   git rm --cached -r -- $1
@@ -608,19 +606,19 @@ git-mnfss() {
 }
 ```
 
-# 关于merge信息的完整性
+# On the Completeness of Merge Information
 
-在执行`git merge --no-ff B*`的时候，新创建的commit中包括多个parent，用来记录谁和谁进行了merge。
-这是为了能够在以后追溯到当初merge时候的细节。
-然而受限于parent的格式，parent只能记录哪些commit进行了merge，与commit相关的其他信息就无法记录了：
-附于该commit上的note，指向该commit的tag(s)，以及该commit所属的refs。
+When running `git merge --no-ff B*`, the new commit includes multiple parents to record which commits were merged.
+This is so you can trace the details of the merge later.
+However, due to the format of parent, only which commits were merged can be recorded; other information related to the commit cannot be recorded:
+Notes attached to the commit, tags pointing to the commit, and refs the commit belongs to.
 
-* 对于notes，可以直接忽略，因为note里面的信息几乎都是本机使用
-* 对于tag，存储于新创建的commit的message body中
-* 对于带有签名（见第13章）的tag，存储于新创建的commit的mergetag中
-* 对于ref，存储于message中（Merge xxx branch）
+* For notes, you can ignore them, as the information is almost always for local use
+* For tags, store them in the message body of the new commit
+* For signed tags (see Chapter 13), store them in the mergetag of the new commit
+* For refs, store them in the message (Merge xxx branch)
 
-首先创建若干空commit和tag：
+First create several empty commits and tags:
 ```bash
 printf '' | git mktree
 # 4b825dc642cb6eb9a060e54bf8d69288fbee4904
@@ -684,7 +682,7 @@ GIT_COMMITTER_DATE='1600000000 +0800' \
 git tag -a -m 'Tag for E' tag-obj-E 1a16
 ```
 
-然后进行merge：
+Then perform merge:
 ```bash
 git update-ref --no-deref HEAD 6784
 git -C ../default-tree reset --hard
@@ -728,12 +726,12 @@ git cat-file commit HEAD
 #
 # Tag for E
 ```
-注意观察commit message中对于各parent的不同的描述。
-另外，commit message中还包含了tag message。
+Note the different descriptions of each parent in the commit message.
+Also, the commit message contains the tag message.
 
-# 总结
+# Summary
 
-- 查看和处理修改
+- View and handle changes
   - Lv2
     - `git diff-tree [-p] <tree-ish> <tree-ish> -- <path>`
     - `git diff-tree [-p] <commit-ish> -- <path>`
@@ -748,7 +746,7 @@ git cat-file commit HEAD
     - `git status`
   - Lv4
     - `git st`
-- 合并修改
+- Merge changes
   - Lv2
     - `git merge-file [--ours|--theirs|--union] C A B`
     - `git merge-tree C A B`
