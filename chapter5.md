@@ -1,12 +1,63 @@
-# 基础知识
+# Basic Concepts
 
-每个repo可以引用（注意不是第0章中的“放弃对象和引用的所有权并链接”）其它repo。
-这种对repo的引用称为remote。每个remote包括以下信息：
-- 名字，惯例是origin和upstream
-- URL，常见协议包括http、https、ftp、files、ssh（`git@github.com`实际上是ssh协议）
-- 关于如何进行fetch的信息
+A remote in Git is a reference to another repository, usually used to synchronize code between different repositories. The most common remote is called `origin`.
 
-本章所有命令都无需worktree。为了方便起见，本章所有命令都将直接在repo中操作，省略`--git-dir`。
+# Adding a Remote
+
+- Lv1
+
+```bash
+echo '[remote "origin"]\n    url = https://github.com/user/repo.git\n    fetch = +refs/heads/*:refs/remotes/origin/*' >> .git/config
+```
+
+- Lv2
+
+```bash
+git remote add origin https://github.com/user/repo.git
+```
+
+# Viewing Remotes
+
+- Lv1
+
+```bash
+cat .git/config
+```
+
+- Lv2
+
+```bash
+git remote -v
+```
+
+# Fetching from a Remote
+
+- Lv2
+
+```bash
+git fetch origin
+```
+
+# Pulling from a Remote
+
+- Lv2
+
+```bash
+git pull origin master
+```
+
+# Pushing to a Remote
+
+- Lv2
+
+```bash
+git push origin master
+```
+
+# Summary
+
+- Remotes are references to other repositories
+- Use `git remote add`, `git fetch`, `git pull`, and `git push` to interact with remotes
 
 ```bash
 git init --bare .

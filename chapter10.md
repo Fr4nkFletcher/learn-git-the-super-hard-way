@@ -1,4 +1,36 @@
-以下命令只需知道其存在，到了真正需要用到的时候再查询其帮助也不迟。
+# Basic Concepts
+
+Git provides various commands for batch processing and automation, allowing you to perform repetitive tasks efficiently.
+
+# Running a Command on All Files
+
+- Lv2
+
+```bash
+git ls-files | xargs -n 1 your-command
+```
+
+# Running a Command on All Commits
+
+- Lv2
+
+```bash
+git rev-list --all | xargs -n 1 your-command
+```
+
+# Using Hooks for Automation
+
+- Lv2
+
+```bash
+# Place your script in .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+# Summary
+
+- Use `git ls-files` and `git rev-list` with `xargs` for batch processing
+- Use Git hooks for automation
 
 # Git批处理
 

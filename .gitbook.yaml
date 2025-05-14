@@ -1,5 +1,9 @@
+# GitBook configuration
+
 root: ./
 
 structure:
   readme: README.md
   summary: SUMMARY.md
+
+# Plugins and other configuration can be added here

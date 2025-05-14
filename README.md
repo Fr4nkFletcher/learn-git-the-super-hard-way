@@ -2,83 +2,81 @@
 
 [GitBook](https://app.gitbook.com/@b1f6c1c4/s/learn-git-the-super-hard-way/)
 
-## 目录
+## Table of Contents
 
-0. [创建工作环境](chapter0.md)（`git init`）
-1. [直接操纵对象](chapter1.md)（`git commit`）
-2. [直接操纵引用](chapter2.md)（`git branch`）
-3. [直接操纵索引](chapter3.md)（`git add / restore`）
-4. [直接操纵HEAD](chapter4.md)（`git switch`）
-5. [直接操纵远程](chapter5.md)（`git pull / push`）
-6. [直接操纵merge](chapter6.md)（`git diff / merge`）
-7. [直接操纵commit](chapter7.md)（`git rebase`）
-8. [检索与查看历史](chapter8.md)（`git log / blame / grep`）
-9. [邪恶的submodule](chapter9.md)（`git submodule`）
-10. [批处理与自动化](chapter10.md)
-11. [配置和alias](chapter11.md)（`git config`）
-12. [单repo多分支工作流](chapter12.md)
-13. [GPG签名](chapter13.md)
-14. [数据的导入和导出](chapter14.md)（`git archive`）
-15. [数据抢修与急救](chapter15.md)
+0. [Create Working Environment](chapter0.md) (`git init`)
+1. [Directly Manipulate Objects](chapter1.md) (`git commit`)
+2. [Directly Manipulate References](chapter2.md) (`git branch`)
+3. [Directly Manipulate the Index](chapter3.md) (`git add / restore`)
+4. [Directly Manipulate HEAD](chapter4.md) (`git switch`)
+5. [Directly Manipulate Remotes](chapter5.md) (`git pull / push`)
+6. [Directly Manipulate Merges](chapter6.md) (`git diff / merge`)
+7. [Directly Manipulate Commits](chapter7.md) (`git rebase`)
+8. [Search and View History](chapter8.md) (`git log / blame / grep`)
+9. [The Evil Submodule](chapter9.md) (`git submodule`)
+10. [Batch Processing and Automation](chapter10.md)
+11. [Configuration and Aliases](chapter11.md) (`git config`)
+12. [Single Repo Multi-Branch Workflow](chapter12.md)
+13. [GPG Signatures](chapter13.md)
+14. [Data Import and Export](chapter14.md) (`git archive`)
+15. [Data Recovery and Emergency](chapter15.md)
 
-**本教程还提供了[cheatsheet](cheatsheet.md)**，可以用来复习并检查学习效果。
+**This tutorial also provides a [cheatsheet](cheatsheet.md) for review and self-testing.**
 
-如果你完全没有听说过cheatsheet里面的任何一条命令，那么你可能需要先学习一些基础教程：[入门](https://try.github.io)、[初级](https://learngitbranching.js.org)、[高级](https://git-scm.com/book/en/v2)。其中高级可以跟本教程同时学习。
+If you are not familiar with any of the commands in the cheatsheet, you may want to start with some basic tutorials: [Beginner](https://try.github.io), [Intermediate](https://learngitbranching.js.org), [Advanced](https://git-scm.com/book/en/v2). The advanced tutorial can be studied alongside this one.
 
-如果你已经完全掌握cheatsheet里面的所有命令，那么此教程可能对你来说太过浅显，建议移步[Git Reference](https://git-scm.com/docs)、[Git源码](https://github.com/git/git)。
+If you have already mastered all the commands in the cheatsheet, this tutorial may be too basic for you. Consider moving on to the [Git Reference](https://git-scm.com/docs) or [Git source code](https://github.com/git/git).
 
-学习完本教程以后，你应该掌握了git的全部用法的1%。
+After completing this tutorial, you should have mastered 1% of all Git usage.
 
-备注：`git reset`/`git checkout`的详解在第4章。强烈推荐改用功能更强大更直观的`git restore`和`git switch`。
+Note: Detailed explanations of `git reset`/`git checkout` are in Chapter 4. It is highly recommended to use the more powerful and intuitive `git restore` and `git switch`.
 
-## 基本约定
+## Basic Conventions
 
-为了更为本质地了解Git，本文会对同一种操作介绍多种不同的实现方法。
-下表描述了不同使用场景下应该如何选择最适合的实现方法。
+To better understand Git at its core, this tutorial introduces multiple ways to perform the same operation. The table below describes which method is best suited for different scenarios.
 
-| 等级 | 含义 | 使用场景 |
+| Level | Meaning | Usage Scenario |
 | --- | --- | --- |
-| Lv0 | 纯粹手工实现，完全不使用Git命令行 | 学习Git内部结构时 |
-| Lv1 | 使用底层Git命令行配合手工实现 | 实现极为特殊的Git操作时 |
-| Lv2 | 使用底层Git命令行实现 | 实现非常规Git操作时 |
-| Lv3 | 使用常规Git命令行实现 | 日常使用 |
-| Lv4 | Git Alias | 对Git进行扩展，日常使用 |
-| Lv5 | 编写脚本调用Git命令行 | 对Git进行非常规扩展，偶尔使用 |
+| Lv0 | Pure manual implementation, no Git CLI | Learning Git internals |
+| Lv1 | Use low-level Git CLI with manual steps | For extremely special Git operations |
+| Lv2 | Use low-level Git CLI | For unconventional Git operations |
+| Lv3 | Use standard Git CLI | Daily use |
+| Lv4 | Git Alias | Extending Git for daily use |
+| Lv5 | Scripting with Git CLI | For unconventional extensions, occasional use |
 
-## Git命令行基础
+## Git Command Line Basics
 
-### 全局命令行参数
+### Global Command Line Parameters
 
-- cwd默认为.，表示先cd到那里再运行后续命令
-- work-tree默认为`GIT_WORK_TREE`或者`.`，但并非所有命令都涉及worktree
-- git-dir默认为`GIT_DIR`或者`./.git`：
-  - 若./.git是目录，则就以该目录为repo
-  - 若./.git是文件，则以该文件内容（一般会是绝对路径）为repo
+- cwd defaults to `.`, meaning to `cd` there before running subsequent commands
+- work-tree defaults to `GIT_WORK_TREE` or `.`, but not all commands involve the worktree
+- git-dir defaults to `GIT_DIR` or `./.git`:
+  - If `./.git` is a directory, it is used as the repo
+  - If `./.git` is a file, its content (usually an absolute path) is used as the repo
 
 ```bash
 git [-C <cwd>] [--git-dir=<repo>] [--work-tree=<worktree>] <command> [args]
 ```
 
-### 具体Git命令的参数
+### Specific Git Command Parameters
 
-大部分命令的参数列表遵循以下格式：
-- object是对象的表达式
-  - 一般由引用、对象SHA1、^、~、:等构成
-  - 完整列表参见`git rev-parse`（Lv2）
-- path是路径
-- `--`在不引起歧义的情况下可以省略
+Most commands follow this format for arguments:
+- object: an object expression
+  - Usually composed of references, object SHA1, ^, ~, :, etc.
+  - See `git rev-parse` (Lv2) for the full list
+- path: a file path
+- `--` can be omitted if there is no ambiguity
 
-注意：是否存在`<path>`参数可能对语义有本质的影响
+Note: The presence or absence of the `<path>` parameter can fundamentally change the command's meaning
 
 ```bash
 git <command> [options] [<object>]
 git <command> [options] [<object>] -- [<path>]
 ```
 
-## Git命令列表
+## Git Command List
 
-本教程涵盖所有的Git常用命令和一半以上的Git非常用命令，
-参见[Roadmap](ROADMAP.md)
+This tutorial covers all common Git commands and more than half of the uncommon ones. See the [Roadmap](ROADMAP.md).
 
 ## License
 

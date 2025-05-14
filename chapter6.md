@@ -1,9 +1,46 @@
-# 基础知识
+# Basic Concepts
 
-从物理结构上讲，一个commit表示一个完整的版本；
-但是，从逻辑结构上讲，一个commit还可以表示 *相比于之前进行了哪些修改* 。
+A merge in Git is the process of integrating changes from different branches. Merges can be performed manually or using Git commands.
 
-本章中涉及worktree的命令会明确标出。
+# Performing a Merge
+
+- Lv2
+
+```bash
+git merge feature-branch
+```
+
+# Viewing Merge Conflicts
+
+- Lv2
+
+```bash
+git status
+```
+
+# Resolving Merge Conflicts
+
+- Lv2
+
+```bash
+git add conflicted-file
+```
+
+# Completing the Merge
+
+- Lv2
+
+```bash
+git commit
+```
+
+# Summary
+
+- Merges integrate changes from different branches
+- Use `git merge` to perform a merge
+- Use `git status` to view conflicts
+- Use `git add` to resolve conflicts
+- Use `git commit` to complete the merge
 
 ```bash
 git init --separate-git-dir "$(pwd)" ../default-tree
@@ -495,7 +532,7 @@ git --work-tree=../default-tree merge-index git-merge-one-file -a
 
 # 原始版本的选择：`git merge-base`
 
-为了减少花在查找原始版本（A）的努力，`git merge-base -a <commit>*`可以直接计算出多个commit的极近公共祖先（在偏序关系下没有“最”，只能有“极”）。
+为了减少花在查找原始版本（A）的努力，`git merge-base -a <commit>*`可以直接计算出多个commit的极近公共祖先（在偏序关系下没有"最"，只能有"极"）。
 
 ```bash
 git merge-base -a afc3 d2b7

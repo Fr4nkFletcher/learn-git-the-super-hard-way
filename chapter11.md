@@ -1,3 +1,40 @@
+# Basic Concepts
+
+Git allows you to configure various settings and create aliases for commands to improve your workflow.
+
+# Configuring Git
+
+- Lv2
+
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+```
+
+# Creating Aliases
+
+- Lv2
+
+```bash
+git config --global alias.co checkout
+git config --global alias.br branch
+git config --global alias.ci commit
+git config --global alias.st status
+```
+
+# Viewing Configuration
+
+- Lv2
+
+```bash
+git config --list
+```
+
+# Summary
+
+- Use `git config` to set user information and create aliases
+- Use `git config --list` to view all configuration settings
+
 # 全局gitignore
 
 ```bash

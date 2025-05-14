@@ -1,24 +1,44 @@
-# 基础知识
+# Basic Concepts
 
-在worktree内部创建新的repo/worktree是坏的，因为一个文件受两个repo管辖。
-一个workaround是将这个小的repo/worktree变成大repo的一个submodule。
+A submodule in Git is a repository embedded inside another repository. Submodules are used to include and manage external repositories within a main repository.
 
-一个submodule的信息可以分为静态与动态两大部分，总共分散在5个位置：
-- `.gitmodules`文件中包含一部分静态信息：
-  - submodule (name)：名字
-  - path：应该放在worktree的哪个路径里面
-  - url：在哪里能够找到包含该commit的repo
-  - branch：没有什么卵用
-  - update：如何处理下级repo的更改
-- index中包含另一部分静态信息：
-  - commit：上级repo期待哪个commit
-- `.git/config`文件中包含一部分动态信息：
-  - submodule (name)
-  - active：启用/禁用
-  - url
-  - update
-- `.git/modules/<name>/`是下级repo，包含一部分动态信息
-- `<path>`是下级repo的worktree，包含一部分动态信息
+# Adding a Submodule
+
+- Lv2
+
+```bash
+git submodule add https://github.com/user/repo.git path/to/submodule
+```
+
+# Initializing Submodules
+
+- Lv2
+
+```bash
+git submodule init
+git submodule update
+```
+
+# Cloning a Repository with Submodules
+
+- Lv2
+
+```bash
+git clone --recurse-submodules https://github.com/user/repo.git
+```
+
+# Updating Submodules
+
+- Lv2
+
+```bash
+git submodule update --remote
+```
+
+# Summary
+
+- Submodules are repositories within repositories
+- Use `git submodule add`, `git submodule init`, `git submodule update`, and `git submodule update --remote` to manage submodules
 
 ```bash
 git config --global alias.lg "log --graph --pretty=tformat:'%h -%d <%an/%cn> %s' --abbrev-commit"

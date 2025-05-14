@@ -1,23 +1,89 @@
-# 基础知识
+# Basic Concepts
 
-Git引用常规放在`<repo>/refs/`中，可以有任意层次的文件夹结构。
-惯例如下：
-- heads
-  - 各本地分支
-- remotes
-  - 各远程仓库
-    - 各远程分支
-- tags
-  - 各标签
-- stash - 见第3章`git stash`
-- replace - 见第1章`git replace`
-- notes - 见第1章`git notes`
+References (refs) are stored in `<repo>/refs/` and are divided into three categories:
+- heads: branch references, stored in `<repo>/refs/heads/`
+- tags: tag references, stored in `<repo>/refs/tags/`
+- remotes: remote-tracking branch references, stored in `<repo>/refs/remotes/`
 
-Git特别引用直接放在`<repo>`下，一般包括`HEAD`等。
+A ref is essentially a file containing a SHA1 value (or another ref, see symbolic refs below).
 
-引用可以分为直接（指向对象的）引用和间接（指向其他引用的）两种。
+There are also special refs:
+- HEAD: points to the current branch (or commit, in detached HEAD state)
+- FETCH_HEAD: records the branch fetched from a remote
+- ORIG_HEAD: records the previous HEAD before a dangerous operation
+- MERGE_HEAD: records the commit(s) being merged
+- CHERRY_PICK_HEAD: records the commit being cherry-picked
+- REBASE_HEAD: records the commit being rebased
 
-本章所有命令都不涉及worktree。后续章节会介绍如何利用worktree来操纵对象（Lv3）。
+Symbolic refs are refs that point to other refs, not directly to a SHA1. For example, HEAD is usually a symbolic ref pointing to a branch in refs/heads/.
+
+# Creating a ref
+
+- Lv1
+
+```bash
+echo 'ce013625030ba8dba906f756967f9e9ca394464a' > refs/heads/master
+```
+
+- Lv2
+
+```bash
+git update-ref refs/heads/master ce013625030ba8dba906f756967f9e9ca394464a
+```
+
+# Viewing a ref
+
+- Lv1
+
+```bash
+cat refs/heads/master
+# ce013625030ba8dba906f756967f9e9ca394464a
+```
+
+- Lv2
+
+```bash
+git show-ref
+# ce013625030ba8dba906f756967f9e9ca394464a refs/heads/master
+```
+
+# Symbolic refs
+
+- Lv1
+
+```bash
+echo 'ref: refs/heads/master' > HEAD
+```
+
+- Lv2
+
+```bash
+git symbolic-ref HEAD refs/heads/master
+git symbolic-ref HEAD
+# refs/heads/master
+```
+
+# Deleting a ref
+
+- Lv1
+
+```bash
+rm refs/heads/master
+```
+
+- Lv2
+
+```bash
+git update-ref -d refs/heads/master
+```
+
+# Summary
+
+- refs are files storing SHA1s or other refs
+- heads, tags, remotes are the main types
+- special refs: HEAD, FETCH_HEAD, ORIG_HEAD, MERGE_HEAD, CHERRY_PICK_HEAD, REBASE_HEAD
+- symbolic refs point to other refs
+- use `git update-ref` and `git symbolic-ref` to manipulate refs
 
 # 创建直接引用
 

@@ -1,3 +1,37 @@
+# Basic Concepts
+
+Git can be used in various advanced scenarios, including integration with other tools, scripting, and custom workflows.
+
+# Integrating with Other Tools
+
+- Lv2
+
+```bash
+git difftool
+```
+
+# Scripting with Git
+
+- Lv2
+
+```bash
+git log --pretty=format:'%h %s' | while read line; do echo $line; done
+```
+
+# Custom Workflows
+
+- Lv2
+
+```bash
+git config --global alias.lg "log --oneline --graph --all"
+```
+
+# Summary
+
+- Use `git difftool` to integrate with diff tools
+- Use shell scripting with Git for automation
+- Create custom workflows with Git aliases
+
 # 基础知识
 
 误操作可能引起数据丢失或者软件版本错误。

@@ -1,3 +1,71 @@
+# Basic Concepts
+
+HEAD is a special reference in Git, usually located at `<repo>/HEAD`. It points to the current branch (or directly to a commit in detached HEAD state).
+
+# Viewing HEAD
+
+- Lv1
+
+```bash
+cat HEAD
+# ref: refs/heads/master
+```
+
+- Lv2
+
+```bash
+git symbolic-ref HEAD
+# refs/heads/master
+```
+
+# Switching HEAD
+
+- Lv1
+
+```bash
+echo 'ref: refs/heads/dev' > HEAD
+```
+
+- Lv2
+
+```bash
+git symbolic-ref HEAD refs/heads/dev
+```
+
+- Lv3
+
+```bash
+git switch dev
+git checkout dev
+```
+
+# Detached HEAD
+
+- Lv1
+
+```bash
+echo 'ce013625030ba8dba906f756967f9e9ca394464a' > HEAD
+```
+
+- Lv2
+
+```bash
+git symbolic-ref -d HEAD
+echo 'ce013625030ba8dba906f756967f9e9ca394464a' > HEAD
+```
+
+- Lv3
+
+```bash
+git switch --detach ce013625030ba8dba906f756967f9e9ca394464a
+git checkout --detach ce013625030ba8dba906f756967f9e9ca394464a
+```
+
+# Summary
+
+- HEAD is a special ref pointing to the current branch or commit
+- Use `git symbolic-ref` or `git switch`/`git checkout` to manipulate HEAD
+
 # 基础知识
 
 每个repo必须有一个HEAD，无论是否选配了worktree。

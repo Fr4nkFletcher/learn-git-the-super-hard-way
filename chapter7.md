@@ -1,12 +1,46 @@
-# 基础知识
+# Basic Concepts
 
-从物理结构上讲，一个commit表示一个完整的版本；
-但是，从逻辑结构上讲，一个commit还可以表示 *相比于之前进行了哪些修改* 。
+Rebase in Git is the process of moving or combining a sequence of commits to a new base commit. This is often used to maintain a linear project history.
 
-从物理结构上讲，一个ref就是一个commit的指针；
-但是，从逻辑结构上讲，一个ref还可以表示 *一系列修改*。
+# Performing a Rebase
 
-为了简便起见，本章所有commit均为空；当commit非空时，请参照第6章进行merge。
+- Lv2
+
+```bash
+git rebase master
+```
+
+# Interactive Rebase
+
+- Lv3
+
+```bash
+git rebase -i master
+```
+
+# Aborting a Rebase
+
+- Lv2
+
+```bash
+git rebase --abort
+```
+
+# Skipping a Commit During Rebase
+
+- Lv2
+
+```bash
+git rebase --skip
+```
+
+# Summary
+
+- Rebase moves or combines commits onto a new base
+- Use `git rebase` to perform a rebase
+- Use `git rebase -i` for interactive rebasing
+- Use `git rebase --abort` to cancel a rebase
+- Use `git rebase --skip` to skip a commit during rebase
 
 ```bash
 git init .

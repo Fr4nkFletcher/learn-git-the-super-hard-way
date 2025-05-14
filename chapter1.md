@@ -1,38 +1,37 @@
-# 基础知识
+# Basic Concepts
 
-Git对象放在`<repo>/objects/`中，分四种：
-- blob：文件内容，本质是前缀和文件原文
-- tree：文件夹内容，本质是经过zlib deflate处理的二进制数组，每个元素包括以下信息：
-  - 类型（文件夹040000，普通文件100644，可执行文件100755）
-  - 文件名
-  - 对应文件（blob）或者文件夹（tree）的SHA1
-- commit：本质是经过zlib deflate处理的以\n换行的纯文本，包括以下信息：
-  - tree：代表根目录内容的tree的SHA1
-  - parent(s)：其他commit的SHA1
-  - author：姓名、邮箱、秒时间戳、时区
-  - committer：姓名、邮箱、秒时间戳、时区
-  - mergetag(s)：见第13章
-  - gpgsig：见第13章
-  - message：任意字节流
-- tag：本质是经过zlib deflate处理的以\n换行的纯文本，包括以下信息：
-  - object：给谁做标记，可以是任意对象的SHA1
-  - type：object的类型
-  - tag：标记名称
-  - tagger：姓名、邮箱、秒时间戳、时区
-  - message：任意字节流
-  - signature：见第13章
+Git objects are stored in `<repo>/objects/` and come in four types:
+- blob: file content, essentially a prefix and the file's raw content
+- tree: directory content, essentially a zlib-deflated binary array, each element includes:
+  - type (directory 040000, regular file 100644, executable file 100755)
+  - filename
+  - SHA1 of the corresponding file (blob) or directory (tree)
+- commit: essentially a zlib-deflated, newline-separated plain text, including:
+  - tree: SHA1 of the root directory's tree
+  - parent(s): SHA1 of other commits
+  - author: name, email, timestamp (seconds), timezone
+  - committer: name, email, timestamp (seconds), timezone
+  - mergetag(s): see Chapter 13
+  - gpgsig: see Chapter 13
+  - message: arbitrary byte stream
+- tag: essentially a zlib-deflated, newline-separated plain text, including:
+  - object: the object being tagged, can be any object's SHA1
+  - type: type of the object
+  - tag: tag name
+  - tagger: name, email, timestamp (seconds), timezone
+  - message: arbitrary byte stream
+  - signature: see Chapter 13
 
-本章所有命令都不涉及worktree。后续章节会介绍如何利用worktree来操纵对象（Lv3）。
+All commands in this chapter do not involve the worktree. Later chapters will introduce how to use the worktree to manipulate objects (Lv3).
 
-由于纯手工执行zlib deflate压缩、计算SHA1确实太麻烦，本章不介绍Lv0的对象创建方案，
-只介绍Lv1的方案（即使用`git hash-object`来完成上述过程）。
+Since manually performing zlib deflate compression and SHA1 calculation is too cumbersome, this chapter does not introduce Lv0 object creation. Only Lv1 (using `git hash-object`) is covered.
 
 ```bash
 git init --bare .
 # Initialized empty Git repository in /root/
 ```
 
-# 创建blob
+# Creating a blob
 
 - Lv1
 
@@ -49,12 +48,12 @@ git hash-object -t blob temp-file -w
 # ce013625030ba8dba906f756967f9e9ca394464a
 ```
 
-# 查看blob
+# Viewing a blob
 
 - Lv0
 
 ```bash
-# 注意：不可将gunzip的输出直接打印到控制台，否则会因为遇到\0而中止
+# Note: Do not print gunzip output directly to the console, or it may stop at \0
 printf '\x1f\x8b\x08\x00\x00\x00\x00\x00' \
 | cat - ./objects/ce/013625030ba8dba906f756967f9e9ca394464a \
 | gunzip -dc 2>/dev/null | xxd
@@ -71,15 +70,15 @@ git cat-file blob ce01
 - Lv3
 
 ```bash
-# 将git show直接作用在blob上，等价于git cat-file blob
+# Using git show directly on a blob is equivalent to git cat-file blob
 git show ce01
 # hello
 ```
 
-# 创建tree
+# Creating a tree
 
 - Lv1
-注意：要先对文件名排序，再使用`git hash-object`
+Note: Sort filenames first, then use `git hash-object`
 
 ```bash
 (printf '100644 name.ext\x00';
@@ -91,7 +90,7 @@ echo '0: ce013625030ba8dba906f756967f9e9ca394464a' | xxd -rp -c 256) \
 ```
 
 - Lv2
-*注意：SHA1和文件名之间必须用tab分隔*，在命令行里输入tab的方法是`<Ctrl-v><Tab>`
+*Note: There must be a tab between SHA1 and filename. In the terminal, enter a tab with `<Ctrl-v><Tab>`*
 
 ```bash
 git mktree --missing <<EOF
@@ -101,12 +100,12 @@ EOF
 # 58417991a0e30203e7e9b938f62a9a6f9ce10a9a
 ```
 
-# 查看tree
+# Viewing a tree
 
 - Lv0
 
 ```bash
-# 注意：不可将gunzip的输出直接打印到控制台，否则会因为遇到\0而中止
+# Note: Do not print gunzip output directly to the console, or it may stop at \0
 printf '\x1f\x8b\x08\x00\x00\x00\x00\x00' \
 | cat - ./objects/58/417991a0e30203e7e9b938f62a9a6f9ce10a9a \
 | gunzip -dc 2>/dev/null | xxd
@@ -130,7 +129,7 @@ git cat-file tree 5841 | xxd
 ```
 
 - Lv2
-使用`git ls-tree`可以方便地看到文件夹的内容
+Use `git ls-tree` to easily view the contents of a directory
 
 ```bash
 git ls-tree 5841
@@ -139,7 +138,7 @@ git ls-tree 5841
 ```
 
 - Lv3
-使用`git show`直接作用在tree上可以看到简化版的文件夹内容
+Use `git show` directly on a tree to see a simplified directory listing
 
 ```bash
 git show 5841
@@ -149,7 +148,7 @@ git show 5841
 # name2.ext
 ```
 
-# 创建commit
+# Creating a commit
 
 - Lv1
 
@@ -183,12 +182,12 @@ EOF
 # efd4f82f6151bd20b167794bc57c66bbf82ce7dd
 ```
 
-# 查看commit
+# Viewing a commit
 
 - Lv0
 
 ```bash
-# 注意：不可将gunzip的输出直接打印到控制台，否则会因为遇到\0而中止
+# Note: Do not print gunzip output directly to the console, or it may stop at \0
 printf '\x1f\x8b\x08\x00\x00\x00\x00\x00' \
 | cat - ./objects/ef/d4f82f6151bd20b167794bc57c66bbf82ce7dd \
 | gunzip -dc 2>/dev/null | xxd
@@ -212,7 +211,7 @@ printf '\x1f\x8b\x08\x00\x00\x00\x00\x00' \
 ```
 
 - Lv2
-使用`git cat-tree`可以方便地看到commit本身的内容
+Use `git cat-tree` to easily view the commit's content
 
 ```bash
 git cat-file commit efd4
@@ -227,7 +226,7 @@ git cat-file commit efd4
 ```
 
 - Lv3
-使用`git show`直接作用在commit上可以看到commit本身及其tree的diff情况
+Use `git show` directly on a commit to see the commit and its tree's diff
 
 ```bash
 git show efd4~
@@ -390,7 +389,7 @@ mv ../evil objects/ce/013625030ba8dba906f756967f9e9ca394464a
 git fsck --connectivity-only
 ```
 
-# “修改”对象
+# "修改"对象
 
 Git对象本身是无法修改的，但是Git提供了一种机制使得我们可以用一个新的对象来覆盖某个现成对象，
 在访问原对象的时候会被自动定向到新的对象中。

@@ -1,4 +1,4 @@
-注：命令前的编号是本教程中出现该命令的章数
+Note: The number before each command indicates the chapter in which it appears in this tutorial.
 
 ```
 $ git help -a
